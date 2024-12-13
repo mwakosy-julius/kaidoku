@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Welcome, {{ user.username }}!</h2>
+<p>Here are your tools:</p>
+<ul>
+    {% for tool in tools %}
+    <li><a href="{{ tool.url }}">{{ tool.name }}</a></li>
+    {% endfor %}
+</ul>
+<a href="{% url 'logout' %}">Log Out</a>
+{% endblock %}

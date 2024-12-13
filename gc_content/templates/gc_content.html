@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}GC Content{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+    width: 80%;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+textarea {
+    width: 100%;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+</style>
+
+<main role="main" class="inner cover">
+    <h1 class="cover-heading">GC Content APP</h1>
+    <div>
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="sequence" placeholder="Enter your gene sequence (FASTA or plain text format)" rows="8" required>{{ sequence }}</textarea>
+            <br>
+            <label for="window_size">Window Size (bp):</label>
+            <input type="number" name="window_size" min="10" value="{{ window_size }}" step="10" required>
+            <br>
+            <button type="submit">Calculate</button>
+        </form>
+        {% if summary %}
+            <h2>Results</h2>
+            <p>{{ summary }}</p>
+            <div>{{ plot|safe }}</div>
+        {% endif %} 
+    </div>
+</main>
+
+{% endblock %}

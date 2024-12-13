@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Pairwise Alignment{% endblock %}
+
+{% block content %}
+<style>
+    
+</style>
+
+<main role="main" class="inner cover">
+    <h1 class="cover-heading">Pairwise Alignment APP</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="sequence1" placeholder="Enter sequence 1"></textarea>
+        <textarea name="sequence2" placeholder="Enter sequence 2"></textarea>
+        <select name="alignment_type">
+            <option value="Global_Alignment">Global Alignment</option>
+            <option value="Local_Alignment">Local Alignment</option>
+        </select>
+        <button type="submit">Align</button>
+    </form>
+    
+    {% if results %}
+        <h2>Results</h2>
+        <p>{{ results }}</p>
+    {% endif %}
+    
+    {% if df %}
+        <h2>Nucleotide Counts</h2>
+        {{ df|safe }}
+    {% endif %}
+    
+    {% if chart %}
+        <h2>Nucleotide Chart</h2>
+        {{ chart|safe }}
+    {% endif %}
+
+    {% if error %}
+        <p style="color:red;">{{ error }}</p>
+    {% endif %}
+</main>
+
+{% endblock %}

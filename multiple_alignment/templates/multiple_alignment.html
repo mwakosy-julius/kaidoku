@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Multiple Alignment{% endblock %}
+
+{% block content %}
+<style>
+    
+</style>
+
+<main role="main" class="inner cover">
+    <h1 class="cover-heading">Multiple Alignment APP</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="sequence" placeholder="Enter your DNA sequence" rows="8" required>{{ sequence }}</textarea>
+        <br>
+        <button type="submit">Align Sequences</button>
+    </form>
+    {% if aligned_sequences %}
+        <h2>Aligned Sequences:</h2>
+        <pre>
+        {% for seq in aligned_sequences %}
+            <!-- Aligned Sequence -->
+            {{ seq }}
+        {% endfor %}
+        </pre>
+    {% endif %}
+</main>
+
+{% endblock %}

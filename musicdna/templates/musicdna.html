@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MusicDNA{% endblock %}
+
+{% block content %}
+<style>
+    .data-entry {
+        display: d-flex;
+        width: auto;
+        justify-content: center;
+        padding: 5px;
+        border-radius: 5px;
+    }
+    .play-button {
+        margin-top: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+    }
+    .play-button:hover {
+        background-color: #2199d5;
+    }
+</style>
+
+<main role="main" class="inner cover">
+    <h1 class="cover-heading">DNA Music Player</h1>
+    <div>
+        <form action="#" method="post" class="d-flex flex-column">
+            {% csrf_token %}
+            <input type="text" class="data-entry" name="sequence" placeholder="Enter sequence">
+            <button type="submit" class="play-button">Play</button>
+        </form>
+    </div>
+</main>
+
+{% endblock %}
