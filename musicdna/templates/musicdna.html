@@ -5,15 +5,42 @@
 
 {% block content %}
 <style>
-    .data-entry {
-        display: d-flex;
-        width: auto;
+    .cover-container {
+        display: flex;
+        flex-direction: column;
         justify-content: center;
-        padding: 5px;
+        align-items: center;
+        min-height: 100vh;
+        background-image: url("{% static 'images/musica.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 2rem;
+    }
+    .cover-heading {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .form-container {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+    }
+    .data-entry {
+        margin-bottom: 1rem;
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ced4da;
         border-radius: 5px;
+        width: 100%;
     }
     .play-button {
-        margin-top: 20px;
+        margin-top: 10px;
         background-color: #4CAF50;
         color: white;
         padding: 10px 20px;
@@ -22,15 +49,17 @@
         cursor: pointer;
         font-size: 16px;
         transition: background-color 0.3s;
+        width: 100%;
     }
     .play-button:hover {
         background-color: #2199d5;
     }
 </style>
 
-<main role="main" class="inner cover">
-    <h1 class="cover-heading">DNA Music Player</h1>
-    <div>
+<main role="main" class="cover-container">
+    <h1 class="cover-heading" style="color: salmon;">DNA Music Player</h1>
+
+    <div class="form-container">
         <form action="#" method="post" class="d-flex flex-column">
             {% csrf_token %}
             <input type="text" class="data-entry" name="sequence" placeholder="Enter sequence">
