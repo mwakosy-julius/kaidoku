@@ -10,9 +10,9 @@ def gc_content(request):
 
         if sequence_input.startswith(">"):
             lines = sequence_input.splitlines()
-            sequence = "".join(lines[1:])  
+            sequence = "".join(lines[1:]).uppper()  
         else:
-            sequence = sequence_input
+            sequence = sequence_input.upper()
 
         positions, gc_content = functions.calculate_gc_content(sequence, window_size)
         plot = functions.plot_gc_content(positions, gc_content, window_size)

@@ -1,44 +1,113 @@
-{% extends 'base.html' %}
+{% extends 'p_base.html' %}
 {% load static %}
 
 {% block title %}Pairwise Alignment{% endblock %}
 
 {% block content %}
 <style>
-    
+    body, html {
+          margin: 0;
+       }
+    /* footer {
+          text-align: center;
+          width: 100%;
+          padding: 1rem;
+          background: #343a40;
+          color: #fff;
+          position: relative;
+          bottom: 0;
+      }   */
+    .cover-container {
+        display: flex;
+        flex-direction: column;
+        /* justify-content: center; */
+        align-items: center;
+        min-height: 100vh;
+        background-image: url("{% static 'images/.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 2rem;
+    }
+    .cover-heading {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: black;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .form-container {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+    }
+    .alignment_type{
+        display: flex;
+        flex-flow: column;
+        margin-bottom: 10px;
+    }
+    .data-entry {
+        margin-bottom: 1rem;
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        width: 100%;
+    }
+    .play-button {
+        margin-top: 10px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        width: 100%;
+    }
+    .play-button:hover {
+        background-color: #2199d5;
+    } 
 </style>
 
-<main role="main" class="inner cover">
+<main role="main" class="cover-container">
     <h1 class="cover-heading">Pairwise Alignment APP</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <textarea name="sequence1" placeholder="Enter sequence 1"></textarea>
-        <textarea name="sequence2" placeholder="Enter sequence 2"></textarea>
-        <select name="alignment_type">
-            <option value="Global_Alignment">Global Alignment</option>
-            <option value="Local_Alignment">Local Alignment</option>
-        </select>
-        <button type="submit">Align</button>
-    </form>
+    <div class="cover-container">
+        <form method="POST" class="form-container">
+            {% csrf_token %}
+            <div class="alignment_type">
+                <p style="margin-bottom: 5px; text-decoration: double;">choose alignment type</p>
+                <select name="alignment_type" style="width: 150px;">
+                    <option value="Global_Alignment">Global Alignment</option>
+                    <option value="Local_Alignment">Local Alignment</option>
+                </select>
+            </div>
+            <textarea name="sequence1" class="data-entry" placeholder="Enter sequence 1"></textarea>
+            <textarea name="sequence2" class="data-entry" placeholder="Enter sequence 2"></textarea>
+            <button type="submit" class="play-button">Align</button>
+        </form>
     
-    {% if results %}
-        <h2>Results</h2>
-        <p>{{ results }}</p>
-    {% endif %}
-    
-    {% if df %}
-        <h2>Nucleotide Counts</h2>
-        {{ df|safe }}
-    {% endif %}
-    
-    {% if chart %}
-        <h2>Nucleotide Chart</h2>
-        {{ chart|safe }}
-    {% endif %}
+        {% if results %}
+            <h2>Results</h2>
+            <p>{{ results }}</p>
+        {% endif %}
+        
+        {% if df %}
+            <h2>Nucleotide Counts</h2>
+            {{ df|safe }}
+        {% endif %}
+        
+        {% if bar_chart %}
+            <h2>Nucleotide Chart</h2>
+            {{ bar_chart|safe }}
+        {% endif %}
 
-    {% if error %}
-        <p style="color:red;">{{ error }}</p>
-    {% endif %}
+        {% if error %}
+            <p style="color:red;">{{ error }}</p>
+        {% endif %}
+    </div>
 </main>
-
 {% endblock %}

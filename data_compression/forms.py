@@ -4,7 +4,6 @@ class CompressionForm(forms.Form):
     compression_method = forms.ChoiceField(
         choices=[
             ('run_length', 'Run-Length Encoding'),
-            ('consensus', 'Consensus Generation'),
             ('delta', 'Delta Compression')
         ],
         widget=forms.RadioSelect,

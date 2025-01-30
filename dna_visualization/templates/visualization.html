@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Multiple Alignment{% endblock %}
+{% block title %}DNA Visualization{% endblock %}
 
 {% block content %}
 <style>
@@ -57,24 +57,38 @@
 </style>
 
 <main role="main" class="cover-container">
-    <h1 class="cover-heading">Multiple Alignment APP</h1>
+    <h1 class="cover-heading">DNA Visualization APP</h1>
     <div class="cover-container">
         <form method="POST" class="form-container">
             {% csrf_token %}
             <textarea name="sequence" class="data-entry" placeholder="Enter your DNA sequences" rows="8" required>{{ sequence }}</textarea>
             <br>
-            <button type="submit" class="play-button">Align Sequences</button>
+            <button type="submit" class="play-button">Visualize</button>
         </form>
-    
-        {% if aligned_sequences %}
-            <h2>Aligned Sequences:</h2>
-            <pre>
-            {% for seq in aligned_sequences %}
-                <!-- Aligned Sequence -->
-                {{ seq }}
-            {% endfor %}
-            </pre>
-        {% endif %}
+
+        <h2>Transcript</h2>
+        <p>{{ transcript }}</p>
+
+        <h2>Amino Acids</h2>
+        <p>{{ amino_acids }}</p>
+
+        <h2>GC Content</h2>
+        <p>{{ gc_content }}</p>
+
+        <h2>DNA COUNTS</h2>
+        <p>{{ dna_counts }}</p>
+
+        <h2>DNA TABLE</h2>
+        <p>{{ dna_table|safe }}</p>
+
+        <h2>DNA CHART</h2>
+        <p>{{ dna_chart|safe }}</p>  
+
+        <h2>AMINO ACIDS COUNTS</h2>
+        <p>{{ amino_acid_counts }}</p> 
+        
+        <h2>AMINO ACIDS CHART</h2>
+        <p>{{ amino_acid_chart|safe }}</p>  
     </div>
 </main>
 

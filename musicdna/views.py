@@ -8,10 +8,8 @@ def musicdna(request):
         if sequence:
             sequence = functions.sequence_validator(sequence)
             if functions.is_dna(sequence):
-                melody = functions.melody_maker(sequence, scale='major')
-                harmony = functions.harmony_maker(sequence, scale='major')
-                rhythm = functions.generate_rhythm(sequence)
-                functions.play_melody_with_harmony(melody, harmony)
+                melody = functions.melody_maker(sequence)
+                functions.play_melody(melody)
             else:
                 return HttpResponse("Invalid input data")
 

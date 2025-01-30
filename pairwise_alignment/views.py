@@ -20,11 +20,11 @@ def pairwise_alignment(request):
                     score_matrix, path_matrix = functions.lcs_local(seq1, seq2, matrix)
                     results = functions.local_alignment(seq1, seq2, score_matrix, path_matrix, matrix)
                 df = functions.table(sequence1, sequence2)
-                chart = functions.bar_chart(sequence1, sequence2)
+                bar_chart = functions.bar_chart(sequence1, sequence2)
                 return render(request, 'pairwise_alignment.html', {
                     'results': results,
                     'df': df.to_html(),
-                    'chart': chart.to_html(),
+                    'bar_chart': bar_chart.to_html(),
                     'alignment_type': alignment_type,
                 })
             else:

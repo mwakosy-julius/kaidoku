@@ -9,33 +9,6 @@
           height: 100%;
           margin: 0;
       }
-      .cover-container {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-          min-height: 100vh;
-          background-color: #f8f9fa;
-          padding: 2rem;
-      }
-      .cover-content {
-          background: #fff;
-          padding: 2rem;
-          border-radius: 10px;
-          box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-          text-align: center;
-          width: 100%;
-          max-width: 600px;
-      }
-      .btn-primary {
-          background-color: #007bff;
-          border-color: #007bff;
-      }
-      .btn-primary:hover,
-      .btn-primary:focus {
-          background-color: #0056b3;
-          border-color: #004085;
-      }
       footer {
           text-align: center;
           width: 100%;
@@ -53,11 +26,7 @@
   <div class="cover-container">
       <div class="cover-content">
           {% block content %}
-          <h1>Welcome to MusicDNA</h1>
-          <p class="lead">Explore the DNA of your music taste.</p>
-          <p class="lead">
-              <a href="#" class="btn btn-lg btn-primary fw-bold border-white bg-primary">Get Started</a>
-          </p>
+          
           {% endblock %}
       </div>
   </div>

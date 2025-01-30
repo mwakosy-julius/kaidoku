@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Multiple Alignment{% endblock %}
+{% block title %}Phylogenetic Trees{% endblock %}
 
 {% block content %}
 <style>
@@ -57,24 +57,20 @@
 </style>
 
 <main role="main" class="cover-container">
-    <h1 class="cover-heading">Multiple Alignment APP</h1>
+    <h1 class="cover-heading">Phylogenetic Trees APP</h1>
     <div class="cover-container">
         <form method="POST" class="form-container">
             {% csrf_token %}
             <textarea name="sequence" class="data-entry" placeholder="Enter your DNA sequences" rows="8" required>{{ sequence }}</textarea>
             <br>
-            <button type="submit" class="play-button">Align Sequences</button>
+            <button type="submit" class="play-button">Generate Tree</button>
         </form>
+        <div>
+            <h2>Results</h2>
+            <!-- <p>{{ results  }}</p> -->
+            <img src="data:image/png;base64,{{ plot_url }}" alt="Phylogenetic Tree">
+        </div>
     
-        {% if aligned_sequences %}
-            <h2>Aligned Sequences:</h2>
-            <pre>
-            {% for seq in aligned_sequences %}
-                <!-- Aligned Sequence -->
-                {{ seq }}
-            {% endfor %}
-            </pre>
-        {% endif %}
     </div>
 </main>
 

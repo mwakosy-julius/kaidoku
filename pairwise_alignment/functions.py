@@ -264,7 +264,7 @@ def bar_chart(sequence1, sequence2):
                 ['T', sequence2.upper().count('T'), 'seq2']],
                 columns = ['Nucleotide', 'Percentage_Count', 'Sequences']
             )
-
+            
     bar_chart = alt.Chart(ds).mark_bar().encode(
         column=alt.Column('Nucleotide'),
         x=alt.X('Sequences'),

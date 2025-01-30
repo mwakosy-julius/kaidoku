@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MOTIF FINDER{% endblock %}
+
+{% block content %}
+<style>
+
+</style>
+
+<main role="main" class="inner cover">
+    <h1 class="cover-heading">Motif Finder APP</h1>
+    <div>
+        <form method="POST">
+            {% csrf_token %}
+            <textarea name="sequence" placeholder="Enter your gene sequence (FASTA or plain text format)" rows="8" required>{{ sequence }}</textarea>
+            <button type="submit">Calculate</button>
+        </form>
+        <div class="container">
+            <h2>Results</h2>
+            <p>{{ motif }}</p>
+        </div>
+    </div>
+</main>
+{% endblock %}

@@ -44,6 +44,10 @@ INSTALLED_APPS = [
     'pairwise_alignment',
     'multiple_alignment',
     'data_compression',
+    'blast',
+    'motif_finder',
+    'dna_visualization',
+    'phylogenetic_trees',
 ]
 
 MIDDLEWARE = [

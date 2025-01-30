@@ -10,4 +10,8 @@ urlpatterns = [
     path('pairwise_alignment/', include('pairwise_alignment.urls')),
     path('multiple_alignment/', include('multiple_alignment.urls')),
     path('data_compression/', include('data_compression.urls')),
+    path('blast/', include('blast.urls')),
+    path('motif_finder/', include('motif_finder.urls')),
+    path('dna_visualization/', include('dna_visualization.urls')),
+    path('phylogenetic_trees/', include('phylogenetic_trees.urls')),
 ]

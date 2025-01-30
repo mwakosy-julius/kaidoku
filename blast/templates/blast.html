@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Blast App{% endblock %}
+
+{% block content %}
+<style>
+    
+</style>
+
+<main role="main" class="inner cover">
+    <h1 class="cover-heading">Blast APP</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="text" placeholder="Enter your gene" rows="2" required>{{ text }}</textarea>
+        <br>
+        <button type="submit">Submit</button>
+    </form>
+    <div class="container">   
+        <h2>Blast Results</h2>
+        <div>{{ results }}</div>    
+    </div>
+</main>
+
+{% endblock %}

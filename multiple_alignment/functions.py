@@ -1,6 +1,5 @@
 import numpy as np
 
-# Constants for scoring
 MATCH = 1
 MISMATCH = -1
 GAP = -2
