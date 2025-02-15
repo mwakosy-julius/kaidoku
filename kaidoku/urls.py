@@ -14,4 +14,6 @@ urlpatterns = [
     path('motif_finder/', include('motif_finder.urls')),
     path('dna_visualization/', include('dna_visualization.urls')),
     path('phylogenetic_trees/', include('phylogenetic_trees.urls')),
+    path('consensus_maker/', include('consensus_maker.urls')),
+    path('variant_calling/', include('variant_calling.urls')),
 ]

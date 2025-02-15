@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'motif_finder',
     'dna_visualization',
     'phylogenetic_trees',
+    'consensus_maker',
+    'variant_calling',
 ]
 
 MIDDLEWARE = [

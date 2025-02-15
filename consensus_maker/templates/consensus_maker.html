@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}MusicDNA{% endblock %}
+{% block title %}Consensus Maker{% endblock %}
 
 {% block content %}
 <style>
-    .cover-container {
+   .cover-container {
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        /* justify-content: center; */
         align-items: center;
         min-height: 100vh;
-        background-image: url("{% static 'images/musica.jpg' %}");
+        background-image: url("{% static 'images/.jpg' %}");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
@@ -20,7 +20,7 @@
     .cover-heading {
         font-size: 2.5rem;
         margin-bottom: 1.5rem;
-        color: white;
+        color: black;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }
     .form-container {
@@ -53,31 +53,22 @@
     }
     .play-button:hover {
         background-color: #2199d5;
-    }
+    } 
 </style>
 
 <main role="main" class="cover-container">
-    <h1 class="cover-heading" style="color: salmon;">DNA Music Player</h1>
-
-    <div class="form-container">
-        <form action="#" method="post" class="d-flex flex-column">
+    <h1 class="cover-heading">Consensus Maker APP</h1>
+    <div class="cover-container">
+        <form method="POST" class="form-container">
             {% csrf_token %}
-            <input type="text" class="data-entry" name="sequence" placeholder="Enter sequence">
-            <button type="submit" class="play-button" id="playButton">Play</button>
+            <textarea name="sequence" class="data-entry" placeholder="Enter your DNA sequences" rows="8" required>{{ sequence }}</textarea>
+            <br>
+            <button type="submit" class="play-button">Generate Consensus</button>
         </form>
+    
+        <h2>Consensus Sequence:</h2>
+        {{ consensus }}
     </div>
 </main>
-
-<script>
-    function toggleButton() {
-        var btn = document.getElementById("playButton");
-        // Toggle between "Play" and "Stop"
-        if (btn.innerText.trim() === "Play") {
-            btn.innerText = "Stop";
-        } else {
-            btn.innerText = "Play";
-        }
-    }
-</script>
 
 {% endblock %}
