@@ -16,4 +16,8 @@ urlpatterns = [
     path('phylogenetic_trees/', include('phylogenetic_trees.urls')),
     path('consensus_maker/', include('consensus_maker.urls')),
     path('variant_calling/', include('variant_calling.urls')),
+    path('quality_control/', include('quality_control.urls')),
+    path('dna_assembler/', include('dna_assembler.urls')),
+    path('primer_design/', include('primer_design.urls')),
+    path('metagenomics/', include('metagenomics.urls')),
 ]

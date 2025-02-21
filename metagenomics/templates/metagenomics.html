@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Metagenomics{% endblock %}
+
+{% block content %}
+<style>
+   .cover-container {
+        display: flex;
+        flex-direction: column;
+        /* justify-content: center; */
+        align-items: center;
+        min-height: 100vh;
+        background-image: url("{% static 'images/.jpg' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        padding: 2rem;
+    }
+    .cover-heading {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: black;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+    .form-container {
+        background: rgba(255, 255, 255, 0.8);
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+    }
+    .data-entry {
+        margin-bottom: 1rem;
+        padding: 10px;
+        font-size: 1rem;
+        border: 1px solid #ced4da;
+        border-radius: 5px;
+        width: 100%;
+    }
+    .play-button {
+        margin-top: 10px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s;
+        width: 100%;
+    }
+    .play-button:hover {
+        background-color: #2199d5;
+    } 
+</style>
+
+<main role="main" class="cover-container">
+    <h1 class="cover-heading">Metagenomics APP</h1>
+    <div class="cover-container">
+        <form method="POST" class="form-container">
+            {% csrf_token %}
+            <textarea name="sequence" class="data-entry" placeholder="Enter your DNA sequences" rows="8" required>{{ sequence }}</textarea>
+            <br>
+            <button type="submit" class="play-button">Analyze</button>
+        </form>
+        
+        <h2>Results</h2>
+        {% if results %}
+        <h2>Results:</h2>
+        <p><strong>GC Content:</strong> {{ results.gc_content|floatformat:2 }}%</p>
+        
+        <h3>K-mer Counts:</h3>
+        <table border="1">
+            <tr>
+                <th>K-mer</th>
+                <th>Count</th>
+                <th>Percentage (%)</th>
+            </tr>
+            {% for item in results.kmer_info %}
+            <tr>
+                <td>{{ item.kmer }}</td>
+                <td>{{ item.count }}</td>
+                <td>{{ item.percentage|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <h3>K-mer Distribution Chart:</h3>
+        <img src="data:image/png;base64,{{ results.chart }}" alt="K-mer Chart">
+        
+        <h3>Merged Sequence:</h3>
+        <p>{{ results.sequences }}</p>
+    {% endif %}
+    </div>
+</main>
+
+{% endblock %}

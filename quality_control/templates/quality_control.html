@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Quality Control APP{% endblock %}
+
+{% block content %}
+<style>
+    .container {
+    width: 80%;
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+textarea {
+    width: 100%;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+</style>
+
+<main role="main" class="inner cover">
+    <h1 class="cover-heading">Quality Control APP</h1>
+    <div>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Upload and Analyze</button>
+        </form>
+    
+        {% if results %}
+        <h2>Analysis Results</h2>
+    
+        <h3>GC Content Distribution</h3>
+        <ul>
+            {% for gc in results.gc_contents %}
+            <li>{{ gc|floatformat:2 }}%</li>
+            {% endfor %}
+        </ul>
+    
+        <h3>Quality Score Distribution</h3>
+        <ul>
+            {% for score in results.quality_scores %}
+            <li>{{ score|floatformat:2 }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        
+    </div>
+</main>
+
+{% endblock %}

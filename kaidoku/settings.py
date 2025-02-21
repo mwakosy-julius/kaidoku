@@ -50,6 +50,10 @@ INSTALLED_APPS = [
     'phylogenetic_trees',
     'consensus_maker',
     'variant_calling',
+    'quality_control',
+    'dna_assembler',
+    'primer_design',
+    'metagenomics',
 ]
 
 MIDDLEWARE = [
