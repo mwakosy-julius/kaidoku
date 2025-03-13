@@ -1,11 +1,14 @@
 from django.shortcuts import render
-from . import functions
+from . import functions, funk2
+import json
 
 def phylogenetic_trees(request):
-    plot_url = None
+    tree = None
     if request.method == "POST":
         sequence = request.POST.get('sequence', '').strip()
-        sequences = functions.parse_fasta(sequence)
-        plot_url = functions.phylogenetic_tree(sequences)
+        sequences = funk2.parse_fasta(sequence)
+        labels, dist_matrix = funk2.create_distance_matrix(sequences)
+        newick_data = funk2.neighbor_joining(labels, dist_matrix) + ";"
+        tree = funk2.render_phylogenetic_tree(newick_data)
           
-    return render(request, "trees.html", {"plot_url": plot_url})
+    return render(request, "trees.html", {'tree': tree})

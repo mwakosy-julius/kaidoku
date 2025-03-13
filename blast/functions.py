@@ -11,14 +11,12 @@ def fetch_gene(text):
             }
         }
         
-        esearch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nuccore&term={text}&rettype=fasta&retmode=json&retmax=3"
+        esearch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nuccore&term={text}&rettype=fasta&retmode=json&retmax=10"
         esearch_response = requests.get(esearch_url, headers=config.get("headers", {}))
         esearch_response.raise_for_status() 
         
         esearch_data = esearch_response.json()
         id_list = esearch_data.get("esearchresult", {}).get("idlist", [])
-
-        # return id_list
         
         if not id_list:
             return {"error": "No results found for the query."}
@@ -32,7 +30,6 @@ def fetch_gene(text):
         formatted_sequences = [seq.split("\n", 1)[0] for seq in sequences]
         
         return {
-            # "id_list": id_list,
             "sequences": fasta_data
         }
     
@@ -163,7 +160,7 @@ def perform_blastn(text, program='blastn', database='nt', evalue=1e-5, max_resul
     
     return results
 
-def perform_blastp(text, program='blastp', database='nr', evalue=1e-5, max_results=5, organism=None):
+def perform_blastp(text, program='blastp', database='nr', evalue=1e-5, max_results=10, organism=None):
     """
     Perform a BLAST query using the NCBI BLAST API for protein sequences.
     
