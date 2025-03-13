@@ -12,7 +12,7 @@ def assemble_dna(sequences):
 
         if best_pair:
             i, j = best_pair
-            merged = sequences[i] + sequences[j][len(best_overlap):]
+            merged = sequences[i] + sequences[j][len(best_overlap) :]
             sequences.pop(j)
             sequences[i] = merged
         else:
@@ -20,8 +20,9 @@ def assemble_dna(sequences):
 
     return sequences[0] if sequences else ""
 
+
 def find_overlap(seq1, seq2):
-    min_overlap = 3  
+    min_overlap = 3
     for i in range(min_overlap, len(seq1)):
         if seq2.startswith(seq1[i:]):
             return seq1[i:]
