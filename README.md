@@ -13,7 +13,7 @@ Kaidoku is a comprehensive bioinformatics API that provides various tools for an
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/kaidoku.git
+git clone https://github.com/mwakosy-julius/kaidoku.git
 cd kaidoku
 
 # Install dependencies
@@ -24,7 +24,7 @@ pip install -r requirements.txt
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/kaidoku.git
+git clone https://github.com/mwakosy-julius/kaidoku.git
 cd kaidoku
 
 # Install dependencies
@@ -41,27 +41,41 @@ Start the API server with:
 python main.py
 ```
 
-The API will be available at `http://localhost:5000` by default.
+The API will be available at `http://localhost:8000` by default.
 
 ### API Endpoints
 
 The following endpoints are available:
 
-- `/api/blast` - Sequence similarity searching
-- `/api/codon-usage` - Codon usage analysis
-- `/api/consensus` - Consensus sequence generation
-- `/api/compression` - Biological data compression
-- `/api/visualization` - DNA sequence visualization
-- `/api/gc-content` - GC content analysis
-- `/api/metagenomics` - Metagenomic analysis
-- `/api/motif-finder` - Sequence motif discovery
-- `/api/multiple-alignment` - Multiple sequence alignments
-- `/api/musicdna` - DNA-to-music conversion
-- `/api/pairwise-alignment` - Pairwise sequence alignments
-- `/api/phylogenetic-trees` - Phylogenetic tree analysis
-- `/api/primer-design` - PCR primer design
-- `/api/quality-control` - Sequence data QC
-- `/api/variant-calling` - Genetic variant identification
+- `/auth` - Authentication and user management
+- `/blast` - Sequence similarity searching
+- `/codon-usage` - Codon usage analysis
+- `/consensus-maker` - Consensus sequence generation
+- `/data-compression` - Biological data compression
+- `/dna-assembler` - DNA sequence assembly
+
+Additional tools (in development/refactoring):
+
+- `/consensus-maker` - Consensus sequence generation
+- `/data-compression` - Biological data compression
+- `/dna-assembler` - DNA sequence assembly
+- `/gc-content` - GC content analysis
+- `/metagenomics` - Metagenomic analysis
+- `/motif-finder` - Sequence motif discovery
+- `/multiple-alignment` - Multiple sequence alignments
+- `/musicdna` - DNA-to-music conversion
+- `/pairwise-alignment` - Pairwise sequence alignments
+- `/phylogenetic-trees` - Phylogenetic tree analysis
+- `/primer-design` - PCR primer design
+- `/quality-control` - Sequence data QC
+- `/variant-calling` - Genetic variant identification
+
+### Authentication
+
+The API uses JWT token-based authentication. To access protected endpoints:
+
+1. Register or login to obtain a token
+2. Include the token in the `Authorization` header for subsequent requests
 
 ### Example API Usage
 
@@ -69,35 +83,55 @@ The following endpoints are available:
 import requests
 import json
 
-# Example: Analyze GC content
-sequence = "ATGCGCTAGCTAGCTACGATCG"
+# Step 1: Authenticate
+auth_response = requests.post(
+    "http://localhost:8000/auth/token",
+    data={"username": "user@example.com", "password": "password"}
+)
+token = auth_response.json()["access_token"]
+headers = {"Authorization": f"Bearer {token}"}
+
+# Step 2: Use an endpoint (e.g., DNA Assembly)
+sequences = ["ATGC", "GCTA", "TACG"]
 response = requests.post(
-    "http://localhost:5000/api/gc-content/analyze",
-    json={"sequence": sequence}
+    "http://localhost:8000/dna-assembler/assemble",
+    headers=headers,
+    json={"sequences": sequences}
 )
 result = response.json()
-print(f"GC Content: {result['gc_percentage']}%")
+print(f"Assembled DNA: {result['assembled_sequence']}")
 ```
 
 ## Project Structure
 
-The project contains multiple specialized modules:
+The project follows a FastAPI-based architecture:
 
-- **blast/** - Tools for sequence similarity searching
-- **codon_usage/** - Analysis of codon usage in genes
-- **consensus_maker/** - Generate consensus sequences from alignments
-- **data_compression/** - Algorithms for biological data compression
-- **dna_visualization/** - Tools for visualizing DNA sequences
-- **gc_content/** - Calculate and analyze GC content in sequences
-- **metagenomics/** - Tools for metagenomic analysis
-- **motif_finder/** - Discover sequence motifs
-- **multiple_alignment/** - Perform multiple sequence alignments
-- **musicdna/** - Convert DNA sequences to musical representations
-- **pairwise_alignment/** - Perform pairwise sequence alignments
-- **phylogenetic_trees/** - Build and analyze phylogenetic trees
-- **primer_design/** - Design PCR primers
-- **quality_control/** - QC tools for sequence data
-- **variant_calling/** - Identify genetic variants
+```
+main.py               # FastAPI application entry point
+app/
+  ├── core/           # Core functionality (security, etc.)
+  ├── db/             # Database models and connection
+  ├── models/         # Pydantic models for request/response
+  ├── routes/         # API route handlers
+  └── tools/          # Bioinformatics tool implementations
+      ├── blast/
+      ├── codon_usage/
+      ├── consensus_maker/
+      ├── data_compression/
+      ├── dna_assembler/
+      └── ...
+```
+
+## Development
+
+### Refactoring Notes
+
+Some tool modules are being refactored from Django to FastAPI structure:
+
+1. Create `router.py` and `functions.py` in each tool directory
+2. Move business logic from Django views to functions
+3. Create FastAPI routers with appropriate endpoints
+4. Update authentication to use FastAPI dependency injection
 
 ## Contributing
 
