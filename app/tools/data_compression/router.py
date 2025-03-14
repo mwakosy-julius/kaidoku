@@ -1,16 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 
-from app.core.security import get_current_active_user
 from app.models.dna import CompressionRequest, CompressionResponse
 
-from functions.delta_compression import delta_compress
-from functions.consensus import generate_consensus, read_fasta
-from functions.delta_compression import run_length_encoding
+from app.tools.data_compression.functions.consensus import generate_consensus, read_fasta
+from app.tools.data_compression.functions.delta_compression import delta_compress
+from app.tools.data_compression.functions.run_length import  run_length_encoding
 
 router = APIRouter(
     prefix="/data_compression",
-    tags=["data compression"],
-    dependencies=[Depends(get_current_active_user)],
 )
 
 

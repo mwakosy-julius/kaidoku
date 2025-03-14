@@ -1,13 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 
-from app.core.security import get_current_active_user
-
-from functions import parse_fasta_sequences, generate_consensus
+from app.tools.consensus_maker.functions import parse_fasta_sequences, generate_consensus
 
 router = APIRouter(
     prefix="/consensus_maker",
-    tags=["consensus maker"],
-    dependencies=[Depends(get_current_active_user)],
 )
 
 

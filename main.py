@@ -1,12 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import auth
-from app.tools.blast import router as blast_router
-from app.tools.dna_assembler import router as dna_assembler
-from app.tools.codon_usage import router as codon_usage_router
-from app.tools.consensus_maker import router as consensus_maker_router
-from app.tools.data_compression import router as data_compression_router
+from app.routes.auth import router as auth_router
+from app.tools.main import router as tools_router
 
 app = FastAPI(
     title="Kaidoku DNA API",
@@ -24,12 +20,8 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(auth.router)
-app.include_router(dna_assembler.router)
-app.include_router(blast_router.router)
-app.include_router(codon_usage_router.router)
-app.include_router(consensus_maker_router.router)
-app.include_router(data_compression_router.router)
+app.include_router(auth_router)
+app.include_router(tools_router)
 
 
 @app.get("/")

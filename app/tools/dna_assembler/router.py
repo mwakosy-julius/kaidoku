@@ -1,13 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 
-from app.core.security import get_current_active_user
 from app.models.dna import DNASequences, DNASequence
-from functions import assemble_dna
+from app.tools.dna_assembler.functions import assemble_dna
 
 router = APIRouter(
     prefix="/dna_assembler",
-    tags=["dna assembler"],
-    dependencies=[Depends(get_current_active_user)],
 )
 
 

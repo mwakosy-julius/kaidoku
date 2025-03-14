@@ -5,8 +5,6 @@ from app.tools.blast.functions import perform_blastp
 
 router = APIRouter(
     prefix="/blast",
-    tags=["blast"],
-    dependencies=[Depends(get_current_active_user)],
 )
 
 

@@ -1,14 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from app.core.security import get_current_active_user
 
-from .functions import calculate_codon_usage
+from app.tools.codon_usage.functions import calculate_codon_usage, generate_codon_usage_table
 
 router = APIRouter(
     prefix="/codon_usage",
-    tags=["codon usage"],
-    dependencies=[Depends(get_current_active_user)],
 )
 
 
@@ -35,7 +32,7 @@ async def calculate_codon_usage(data: CodonUsageRequest):
         # Parse the input sequence
         sequences = calculate_codon_usage(data.sequence)
         # Generate the consensus sequence
-        consensus = generate_consensus(sequences)
+        consensus = generate_codon_usage_table(sequences)
         # Return the consensus sequence
         return {"consensus": consensus}
     except Exception as e:

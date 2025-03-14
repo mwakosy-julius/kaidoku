@@ -81,3 +81,4 @@ def generate_codon_usage_table(result):
         html += '</tr>'
     html += '</table>'
     return html
+

@@ -7,3 +7,7 @@ python-multipart>=0.0.5
 sqlalchemy>=1.4.0
 pydantic[email]
 requests
+pandas
+altair
+matplotlib
+plotly
