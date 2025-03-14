@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.security import get_current_active_user
 from app.models.dna import DNASequences, DNASequence
-from app.services.dna_assembler import assemble_dna
+from functions import assemble_dna
 
 router = APIRouter(
     prefix="/dna_assembler",

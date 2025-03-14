@@ -1,6 +1,3 @@
-import re
-
-
 def run_length_encoding(sequence):
     compressed = ""
     count = 1
