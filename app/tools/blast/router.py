@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.core.security import get_current_active_user
-
-from functions import perform_blastp
+from app.tools.blast.functions import perform_blastp
 
 router = APIRouter(
     prefix="/blast",

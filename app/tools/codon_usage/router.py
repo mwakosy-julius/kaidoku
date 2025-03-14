@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 from app.core.security import get_current_active_user
 
-from functions import parse_fasta_sequences, generate_consensus
+from .functions import calculate_codon_usage
 
 router = APIRouter(
     prefix="/codon_usage",
@@ -33,7 +33,7 @@ async def calculate_codon_usage(data: CodonUsageRequest):
 
     try:
         # Parse the input sequence
-        sequences = parse_fasta_sequences(data.sequence)
+        sequences = calculate_codon_usage(data.sequence)
         # Generate the consensus sequence
         consensus = generate_consensus(sequences)
         # Return the consensus sequence

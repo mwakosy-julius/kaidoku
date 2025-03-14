@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+from app.schema.schema import Sequence
+
 GENETIC_CODE = {
     'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L',
     'TCT': 'S', 'TCC': 'S', 'TCA': 'S', 'TCG': 'S',
@@ -38,13 +40,14 @@ GENETIC_CODE_TABLE_ORDER = [
     ['GTG', 'GCG', 'GAG', 'GGG']
 ]
 
-def calculate_codon_usage(sequence):
+
+def calculate_codon_usage(sequence: Sequence):
     sequence = sequence.upper()
     codon_count = defaultdict(int)
     amino_acid_count = defaultdict(int)
-    
+
     for i in range(0, len(sequence) - 2, 3):
-        codon = sequence[i:i+3]
+        codon = sequence[i:i + 3]
         if codon in GENETIC_CODE:
             amino_acid = GENETIC_CODE[codon]
             codon_count[codon] += 1
@@ -63,6 +66,7 @@ def calculate_codon_usage(sequence):
             "count": count
         }
     return codon_usage
+
 
 def generate_codon_usage_table(result):
     html = '<table border="1" style="width:100%; text-align:center;">'
