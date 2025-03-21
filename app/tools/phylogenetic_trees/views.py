@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from fastapi import APIRouter, Request
 from . import functions
 
 def phylogenetic_trees(request):
