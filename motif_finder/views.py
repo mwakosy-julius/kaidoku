@@ -3,6 +3,7 @@ from . import functions
 
 def motif_finder(request):
     k_length = 6
+    motif = None
     if request.method == 'POST':
         sequences = request.POST.get('sequence', '')
         sequences = functions.parse_fasta_sequences(sequences)
