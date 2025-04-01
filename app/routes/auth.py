@@ -73,8 +73,9 @@ def get_tools(current_user=Depends(get_current_active_user)):
         {"name": "Multiple Sequence Alignment", "url": "/multiple_alignment/"},
         {"name": "GC Content Calculator", "url": "/gc_content/"},
         {"name": "Codon Usage Calculator", "url": "/codon_usage/"},
-        {"name": "Data Compression Tool", "url": "/data_compression/"},
+        {"name": "DNA Visualization Tool", "url": "/dna_visualization/"},
         {"name": "MusicDNA", "url": "/musicdna/"},
-        {"name": "DNA Assembler", "url": "/dna_assembler/"},
+        {"name": "Blast", "url": "/blast/"},
+        {"name": "Phylogenetic Tree", "url": "/phylogenetic_tree/"},
     ]
     return {"tools": tools}
