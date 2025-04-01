@@ -1,20 +1,24 @@
 from datetime import datetime, timedelta
 from typing import Optional
+from dotenv import load_dotenv
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
+import os
 
 from app.db.database import get_db
 from app.db.models import User
 from app.models.user import TokenData
 
+load_dotenv()
+
 # Security constants
-SECRET_KEY = "YOUR_SECRET_KEY_HERE"  # In production, use environment variable
+SECRET_KEY = os.getenv("SECRET_KEY", "YOUR_SECRET_KEY_HERE")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")

@@ -1,5 +1,4 @@
 from datetime import timedelta
-from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -36,7 +35,7 @@ def signup(user: UserCreate, db: Session = Depends(get_db)):
 
     hashed_password = get_password_hash(user.password)
     db_user = User(
-        username=user.username, email=user.email, hashed_password=hashed_password
+        username=user.username, email=str(user.email), hashed_password=hashed_password
     )
     db.add(db_user)
     db.commit()
