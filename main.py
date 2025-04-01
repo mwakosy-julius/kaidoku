@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
@@ -8,15 +9,26 @@ from app.tools.main import router as tools_router
 
 load_dotenv()
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: create database and tables
+    create_db_and_tables()
+    yield
+    # Shutdown: cleanup would go here
+
+
 app = FastAPI(
     title="Kaidoku DNA API",
     description="API for DNA analysis tools including assembly and compression",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
+origins = ["http://localhost:5173"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with actual origins
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,11 +36,6 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(tools_router)
-
-
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
 
 
 @app.get("/")

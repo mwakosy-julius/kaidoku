@@ -32,12 +32,12 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db: Session, username: str):
-    return db.query(User).filter(User.username == username).first()
+def get_user(db: Session, email: str):
+    return db.query(User).filter(User.email == email).first()
 
 
-def authenticate_user(db: Session, username: str, password: str):
-    user = get_user(db, username)
+def authenticate_user(db: Session, email: str, password: str):
+    user = get_user(db, email)
     if not user or not verify_password(password, user.hashed_password):
         return False
     return user
