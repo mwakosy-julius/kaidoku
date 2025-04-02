@@ -1,15 +1,51 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
-from sqlalchemy.sql import func
+from datetime import datetime, timezone
+from typing import Optional
 
-from .database import Base
+from sqlmodel import (
+    Field,
+    Session,
+    SQLModel,
+    func,
+    select,
+)
+
+from app.core.security import verify_password
+
+from .database import engine
 
 
-class User(Base):
-    __tablename__ = "users"
+class User(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    email: str = Field(
+        min_length=3,
+        max_length=50,
+        unique=True,
+        description="Email Address",
+        index=True,
+    )
+    username: str = Field(unique=True, index=True)
+    hashed_password: str
+    is_active: bool = Field(default=True)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column_kwargs={"server_default": func.now()},
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column_kwargs={"server_default": func.now(), "onupdate": func.now()},
+    )
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    username = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    is_active = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    @classmethod
+    def authenticate(cls, email: str, password: str):
+        """Authenticate a user with email and password."""
+        with Session(engine) as session:
+            stmt = select(cls).where(cls.email == email)
+            user = session.exec(stmt).first()
+            if user and verify_password(password, user.hashed_password):
+                return user
+
+    @classmethod
+    def by_email(cls, email: str):
+        """Get a user by email."""
+        with Session(engine) as session:
+            return session.exec(select(cls).where(cls.email == email)).first()
