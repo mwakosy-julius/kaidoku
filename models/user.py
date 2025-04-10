@@ -13,13 +13,13 @@ class UserCreate(UserBase):
     password: str
 
 
-class User(UserBase):
+class User(UserBase, table=True):
+
+    __tablename__ = "users"
+
     id: int
     is_active: bool
     created_at: datetime
-
-    class Config:
-        orm_mode = True
 
 
 class TokenData(BaseModel):
