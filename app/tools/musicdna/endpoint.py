@@ -17,10 +17,8 @@ def musicdna(request: Sequence):
     if sequence:
         sequence = funk.sequence_validator(sequence)
         if functions.is_dna(sequence):
-            # melody = functions.melody_maker(sequence)
-            # functions.play_melody(melody)
-            apply_inversion = random.choice([True, False])
-            funk.play_musicdna(sequence, use_inversion=apply_inversion)
+            melody = functions.melody_maker(sequence)
+            functions.play_melody(melody)
         else:
             return HTTPException(404, "Invalid sequence")
 
