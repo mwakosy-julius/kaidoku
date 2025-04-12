@@ -1,0 +1,5 @@
+Generic single-database configuration.
+
+### Alembic commands to run the cli
+- generate the migrations automatically: alembic revision --autogenerate -m "Initial migration"
+- pushing the migrations to the database: alembic upgrade head
