@@ -10,7 +10,11 @@ from core.security import (
     verify_password,
 )
 from models.user import User, Token, UserCreate
-from api.routes.auth.user_crud import get_user_by_username, get_user_by_email, create_user
+from api.routes.auth.user_crud import (
+    get_user_by_username,
+    get_user_by_email,
+    create_user,
+)
 
 router = APIRouter(prefix="/auth")
 
@@ -28,7 +32,6 @@ async def authenticate_user(username: str, password: str):
 @router.post("/signup", response_model=User)
 async def signup(user: UserCreate):
     """Register a new user"""
-    # Check if username already exists
     existing_user = await get_user_by_username(user.username)
     if existing_user:
         raise HTTPException(
@@ -36,14 +39,12 @@ async def signup(user: UserCreate):
             detail="Username already registered",
         )
 
-    # Check if email already exists
     existing_email = await get_user_by_email(user.email)
     if existing_email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
-    # Create new user
     db_user = await create_user(user)
     return db_user
 
@@ -84,5 +85,9 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
         {"name": "MusicDNA", "url": "/musicdna/"},
         {"name": "Blast", "url": "/blast/"},
         {"name": "Phylogenetic Tree", "url": "/phylogenetic_tree/"},
+        {"name": "Variant Calling", "url": "/variant_calling/"},
+        {"name": "Motif Finder", "url": "/motif_finder/"},
+        {"name": "Consensus Maker", "url": "/consensus_maker/"},
+        {"name": "Data Compression", "url": "/data_compression/"},
     ]
     return {"tools": tools}

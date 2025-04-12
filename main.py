@@ -1,7 +1,7 @@
 # import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
-from core.db import init_db
+# from core.db import init_db
 from api.main import routing
 from core.config import settings
 
@@ -20,8 +20,8 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
 )
 
-@app.on_event("startup")
-async def startup_event():
-    await init_db()
+# @app.on_event("startup")
+# async def startup_event():
+#     await init_db()
 
 app.include_router(routing, prefix=settings.API_V_STR)

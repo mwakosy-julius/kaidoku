@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
-from models.user import User
+from models.user import User, TokenData
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -54,7 +54,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
             token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
         )
         username: str = payload.get("sub")
-        if username is None:
+        if not username:
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:
