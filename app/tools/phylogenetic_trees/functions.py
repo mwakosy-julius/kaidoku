@@ -1,100 +1,88 @@
-from scipy.cluster.hierarchy import linkage, dendrogram
-from scipy.spatial.distance import pdist, squareform
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
 import numpy as np
-import io
-import base64
 
-# Example distance matrix for sequences
-# Replace this with real computed distances
-# sequences = ["AAGTCC", "AAGCCC", "TAGTCC", "AAGTGC"]
-
-def parse_fasta_sequences(fasta_input):
-    sequences = []
-    current_sequence = ""
-    lines = fasta_input.strip().splitlines()
+# Function to compute Hamming distance matrix
+def compute_distance_matrix(fasta_input):
+    lines = fasta_input.strip().split("\n")
+    sequences = {}
+    current_seq = ""
+    current_name = None
+    
     for line in lines:
         if line.startswith(">"):
-            if current_sequence:
-                sequences.append(current_sequence)
-                current_sequence = ""
+            if current_name and current_seq:
+                sequences[current_name] = current_seq
+            current_name = line[1:].strip()
+            current_seq = ""
         else:
-            current_sequence += line.strip()
-    if current_sequence:
-        sequences.append(current_sequence)
-    return sequences
-
-def parse_fasta(fasta_text):
-    sequences = {}
-    current_sequence_name = None
-    current_sequence = []
-
-    for line in fasta_text.strip().split('\n'):
-        if line.startswith('>'):
-            if current_sequence_name:
-                sequences[current_sequence_name] = ''.join(current_sequence)
-            current_sequence_name = line[1:].strip() 
-            current_sequence = []
-        else:
-            current_sequence.append(line.strip())
-
-    if current_sequence_name:
-        sequences[current_sequence_name] = ''.join(current_sequence)
-
-    return sequences
-
-def simple_substitution_distance(seq1, seq2):
-    """Simple model to compute genetic substitution distance."""
-    # Assuming sequences are already aligned
-    mismatches = sum(1 for a, b in zip(seq1, seq2) if a != b)
-    return mismatches / len(seq1)
-
-def build_distance_matrix(sequences):
-    """Create a distance matrix based on pairwise sequence distances."""
-    n = len(sequences)
-    distance_matrix = np.zeros((n, n))
+            current_seq += line.strip()
+    if current_name and current_seq:
+        sequences[current_name] = current_seq
+    
+    if len(sequences) < 2:
+        raise HTTPException(status_code=400, detail="At least 2 sequences required")
+    
+    names = list(sequences.keys())
+    seqs = list(sequences.values())
+    n = len(seqs)
+    
+    seq_length = len(seqs[0])
+    if not all(len(seq) == seq_length for seq in seqs):
+        raise HTTPException(status_code=400, detail="All sequences must be the same length")
+    
+    dist_matrix = np.zeros((n, n))
     for i in range(n):
-        for j in range(n):
-            if i < j:
-                distance_matrix[i][j] = simple_substitution_distance(
-                    sequences[i], sequences[j]
-                )
-                distance_matrix[j][i] = distance_matrix[i][j]
-    return distance_matrix
+        for j in range(i + 1, n):
+            diff = sum(a != b for a, b in zip(seqs[i], seqs[j]))
+            dist = diff / seq_length
+            dist_matrix[i, j] = dist
+            dist_matrix[j, i] = dist
+    
+    return dist_matrix, names
 
-def phylogenetic_tree(sequence_dict):
-    """Generates a Neighbor-Joining phylogenetic tree."""
-    sequence_names = list(sequence_dict.keys())
-    sequence_list = list(sequence_dict.values())
-
-    # Ensure sequences are aligned
-    aligned_length = set(len(seq) for seq in sequence_list)
-    if len(aligned_length) > 1:
-        raise ValueError("All sequences must have the same length for alignment.")
-
-    # Compute distance matrix
-    distance_matrix = build_distance_matrix(sequence_list)
-
-    # Visualize tree using hierarchical clustering
-    plt.figure(figsize=(8, 5))
-    linked = linkage(squareform(distance_matrix), 'average')
-    dendrogram(linked,
-            orientation='left',
-               labels=sequence_names,
-               distance_sort='descending',
-               show_leaf_counts=True)
-    plt.title("Phylogenetic Tree")
-    plt.xlabel("Distance")
-    # plt.show()
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    plot_url = base64.b64encode(buf.getvalue()).decode('utf-8')
-    buf.close()
-    plt.close()
-
-    return plot_url
+# Neighbor-Joining algorithm
+def neighbor_joining(dist_matrix, names):
+    n = len(dist_matrix)
+    if n <= 1:
+        return None
+    
+    nodes = [f"{name}:0" for name in names]
+    matrix = dist_matrix.copy()
+    
+    while n > 2:
+        Q = np.zeros((n, n))
+        for i in range(n):
+            for j in range(i + 1, n):
+                total_dist = sum(matrix[i]) + sum(matrix[j]) - 2 * matrix[i, j]
+                Q[i, j] = (n - 2) * matrix[i, j] - total_dist
+                Q[j, i] = Q[i, j]
+        
+        i, j = np.unravel_index(np.argmin(Q), Q.shape)
+        if i > j:
+            i, j = j, i
+        
+        total_dist_i = sum(matrix[i]) / (n - 2)
+        total_dist_j = sum(matrix[j]) / (n - 2)
+        d_ij = matrix[i, j]
+        branch_i = (d_ij + total_dist_i - total_dist_j) / 2
+        branch_j = d_ij - branch_i
+        
+        new_node = f"({nodes[i]}:{branch_i:.4f},{nodes[j]}:{branch_j:.4f})"
+        nodes.pop(j)
+        nodes.pop(i)
+        nodes.append(new_node)
+        
+        new_dist = np.zeros((n - 1))
+        for k in range(n):
+            if k != i and k != j:
+                new_dist[k if k < i else (k - 1 if k < j else k - 2)] = (matrix[i, k] + matrix[j, k] - d_ij) / 2
+        
+        n -= 1
+        matrix = np.delete(matrix, [i, j], axis=0)
+        matrix = np.delete(matrix, [i, j], axis=1)
+        matrix = np.vstack([matrix, new_dist[:-1]])
+        matrix = np.hstack([matrix, new_dist[:, None]])
+    
+    if n == 2:
+        return f"({nodes[0]}:{matrix[0, 1]/2:.4f},{nodes[1]}:{matrix[0, 1]/2:.4f});"
+    return nodes[0] + ";"
     

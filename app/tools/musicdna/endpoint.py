@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from . import functions, funk
+from . import functions
 import random
 
 from ...schema.schema import Sequence
@@ -15,7 +15,7 @@ def musicdna(request: Sequence):
     result = ''
     sequence = request.sequence
     if sequence:
-        sequence = funk.sequence_validator(sequence)
+        sequence = functions.sequence_validator(sequence)
         if functions.is_dna(sequence):
             melody = functions.melody_maker(sequence)
             functions.play_melody(melody)
