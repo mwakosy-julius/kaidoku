@@ -89,5 +89,6 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
         {"name": "Motif Finder", "url": "/motif_finder/"},
         {"name": "Consensus Maker", "url": "/consensus_maker/"},
         {"name": "Data Compression", "url": "/data_compression/"},
+        {"name": "Metagenomics", "url": "/metagenomics/"},
     ]
     return {"tools": tools}
