@@ -1,9 +1,12 @@
 from models.user import User, UserCreate, UserInfo
 from datetime import datetime
 from typing import Optional
+from core.config import settings
 from core.db import user_collection
 from models.user import PyObjectId
 from passlib.context import CryptContext
+from core.db import db
+from jose import jwt
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -47,3 +50,47 @@ async def get_user_by_id(user_id: str) -> Optional[User]:
     if user_data:
         return UserInfo(**user_data)
     return None
+
+
+async def add_refresh_token(user_id: str, token_id: str, expires: datetime) -> bool:
+    """Add a refresh token to the database"""
+    result = await db.refresh_tokens.insert_one(
+        {
+            "user_id": user_id,
+            "token_id": token_id,
+            "expires": expires,
+            "created_at": datetime.utcnow(),
+            "is_revoked": False,
+        }
+    )
+    return bool(result.inserted_id)
+
+
+async def invalidate_refresh_token(token: str) -> bool:
+    """Invalidate a refresh token"""
+    try:
+        # Decode token to get ID
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
+        token_id = payload.get("jti")
+
+        # Mark token as revoked
+        result = await db.refresh_tokens.update_one(
+            {"token_id": token_id}, {"$set": {"is_revoked": True}}
+        )
+        return result.modified_count > 0
+    except Exception:
+        return False
+
+
+async def check_refresh_token_valid(token: str, token_id: str) -> bool:
+    """Check if a refresh token is valid"""
+    token_doc = await db.refresh_tokens.find_one({"token_id": token_id})
+    if not token_doc:
+        return False
+
+    return (
+        not token_doc.get("is_revoked", False)
+        and token_doc.get("expires") > datetime.utcnow()
+    )

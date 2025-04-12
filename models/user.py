@@ -66,10 +66,15 @@ class UserInfo(UserBase):
             data["_id"] = self.id
         return data
 
+class UserLogin(BaseModel):
+    """Model for user login"""
+    email: EmailStr
+    password: str
+
 class TokenData(BaseModel):
     """Data stored in a JWT token"""
 
-    username: Optional[str] = None
+    email: Optional[str] = None
 
 
 class Token(BaseModel):

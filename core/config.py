@@ -32,6 +32,10 @@ class Settings(BaseSettings):
     API_V_STR: str = "/api/v1"
     SECRET_KEY: str = secrets.token_urlsafe(32)
     ALGORITHM: str = "HS256"
+    COOKIE_SECURE: bool = False
+    COOKIE_HTTPONLY: bool = True
+    COOKIE_SAMESITE: Literal["lax", "strict", "none"] = "lax"
+    COOKIE_PATH: str = "/auth"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
     CORS_ORIGINS: Annotated[
@@ -46,7 +50,7 @@ class Settings(BaseSettings):
         ]
 
     PROJECT_NAME: str = "Kaidoku API"
-    FRONTEND_HOST: str = "http://localhost:3000" 
+    FRONTEND_HOST: str = "http://localhost:5173" 
     SENTRY_DSN: HttpUrl | None = None # security
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
