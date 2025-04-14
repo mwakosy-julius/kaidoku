@@ -13,7 +13,7 @@ class CompressionResponse(BaseModel):
     method: str
     compression_ratio: float
 
-from api.routes.tools.data_compression.functions.consensus import generate_consensus, read_fasta
+# from api.routes.tools.data_compression.functions.consensus import generate_consensus, read_fasta
 from api.routes.tools.data_compression.functions.delta_compression import delta_compress
 from api.routes.tools.data_compression.functions.run_length import  run_length_encoding
 
@@ -44,14 +44,14 @@ async def compress_data(request: CompressionRequest):
                     detail="Reference sequence required for delta compression",
                 )
             compressed = delta_compress(request.sequence, request.reference)
-        elif request.method == "consensus":
-            sequences = read_fasta(request.sequence)
-            if len(sequences) <= 1:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Multiple sequences required for consensus",
-                )
-            compressed = generate_consensus(sequences)
+        # elif request.method == "consensus":
+        #     sequences = read_fasta(request.sequence)
+        #     if len(sequences) <= 1:
+        #         raise HTTPException(
+        #             status_code=status.HTTP_400_BAD_REQUEST,
+        #             detail="Multiple sequences required for consensus",
+        #         )
+        #     compressed = generate_consensus(sequences)
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

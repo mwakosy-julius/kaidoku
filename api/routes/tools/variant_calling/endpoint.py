@@ -1,19 +1,15 @@
-from fastapi import APIRouter
-# from . import functions
+from fastapi import APIRouter, HTTPException
+from . import functions
 
 router = APIRouter(
     prefix="/variant_calling",
 )
 
-# @router.get("/")
-# async def variant_calling(request: Request):
-#     summary = None
-
-#     if request.method == 'POST':
-#         reference = request.get('reference', '') 
-#         sequence_input = request.get('sequence', '').strip()
-#         sequences = functions.parse_fasta_sequences(sequence_input)
-#         reads = functions.generate_reads(sequences, read_length=10, coverage=3)
-#         summary = functions.call_variants(reference, reads, threshold=0.7)
-    
-#     return render(request, "variant_calling.html", {"summary": summary})
+@router.get("/")
+def variant_call(ref_fasta: str, sample_fasta: str):
+    ref = functions.parse_fasta(ref_fasta)
+    sample = functions.parse_fasta(sample_fasta)
+    if not ref or not sample:
+        raise HTTPException(status_code=400, detail="Invalid FASTA")
+    variants = functions.call_variants(ref, sample)
+    return {"variants": variants}
