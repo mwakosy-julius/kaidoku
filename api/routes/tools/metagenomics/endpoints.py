@@ -1,42 +1,77 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File, HTTPException, Form
 from . import functions
 from pydantic import BaseModel
+from typing import List, Dict
+from fastapi.responses import StreamingResponse
+import io
 
+class Taxon(BaseModel):
+    species: str
+    abundance: float
 
-class Sequence(BaseModel):
-    sequence: str
+class Stats(BaseModel):
+    total_reads: int
+    classified_kmers: int
+    unique_species: int
+
+class AnalysisResponse(BaseModel):
+    taxa: List[Taxon]
+    stats: Stats
+    details: List[Dict]
 
 router = APIRouter(
     prefix="/metagenomics",
 )
 
-@router.post("/")
-def metagenomics(request: Sequence):
-    results = None
+@router.post("/analyze, response_model=AnalysisResponse")
+async def analyze_metagenome(file: UploadFile = File(None), fasta_text: str = Form("")):
+    """Analyze metagenomic FASTA."""
+    try:
+        if file:
+            fasta_content = (await file.read()).decode("utf-8")
+        elif fasta_text.strip():
+            fasta_content = fasta_text
+        else:
+            raise HTTPException(status_code=400, detail="Provide FASTA file or text")
+        
+        taxa, stats, details_df = functions.profile_taxa(fasta_content)
+        
+        return {
+            "taxa": taxa,
+            "stats": stats,
+            "details": details_df.to_dict(orient="records")
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-    if request is None:
-        return HTTPException(status_code=404, detail="No request provided")
 
-    sequence = request.POST.get("sequence", "").strip()
-    sequences = functions.format_sequence(sequence)
-    gc_content = functions.calculate_gc_content(sequences)
-    kmer_counts, kmer_percentages = functions.count_kmers(sequences)
-
-    kmer_info = []
-    for kmer in kmer_counts:
-        kmer_info.append({
-            "kmer": kmer,
-            "count": kmer_counts[kmer],
-            "percentage": kmer_percentages.get(kmer, 0)
-        })
-
-    chart = functions.generate_kmer_bar_chart(kmer_counts)
-
-    results = {
-        "gc_content": gc_content,
-        "kmer_info": kmer_info,
-        "chart": chart,
-        "sequences": sequences,
-    }
-
-    return results
+@router.post("/download-csv")
+async def download_csv(file: UploadFile = File(None), fasta_text: str = Form("")):
+    """Generate and download CSV of analysis results."""
+    try:
+        if file:
+            fasta_content = (await file.read()).decode("utf-8")
+        elif fasta_text.strip():
+            fasta_content = fasta_text
+        else:
+            raise HTTPException(status_code=400, detail="Provide FASTA file or text")
+        
+        _, _, details_df = functions.profile_taxa(fasta_content)
+        if details_df.empty:
+            raise HTTPException(status_code=400, detail="No taxa identified")
+        
+        csv_buffer = io.StringIO()
+        details_df.to_csv(csv_buffer, index=False)
+        csv_buffer.seek(0)
+        
+        return StreamingResponse(
+            io.BytesIO(csv_buffer.getvalue().encode("utf-8")),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=metasimple_results.csv"}
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
