@@ -1,24 +1,18 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
+from api.routes.tools.codon_usage.functions import calculate_codon_usage, generate_codon_usage_table, Sequence
 
-
-from api.routes.tools.codon_usage.functions import calculate_codon_usage, generate_codon_usage_table
-
-router = APIRouter(
-    prefix="/codon_usage",
-)
-
+router = APIRouter(prefix="/codon_usage")
 
 class CodonUsageRequest(BaseModel):
     sequence: str
 
-
 class CodonUsageResponse(BaseModel):
-    consensus: str
-
+    codon_usage: dict
+    table: str
 
 @router.post("/", response_model=CodonUsageResponse)
-async def calculate_codon_usage(data: CodonUsageRequest):
+async def calculate_codon_usage_endpoint(data: CodonUsageRequest):
     """
     Calculate codon usage from a DNA sequence.
     """
@@ -29,12 +23,12 @@ async def calculate_codon_usage(data: CodonUsageRequest):
         )
 
     try:
-        # Parse the input sequence
-        sequences = calculate_codon_usage(data.sequence)
-        # Generate the consensus sequence
-        consensus = generate_codon_usage_table(sequences)
-        # Return the consensus sequence
-        return {"consensus": consensus}
+        # Pass Sequence model to calculate_codon_usage
+        codon_usage = calculate_codon_usage(Sequence(sequence=data.sequence))
+        # Generate HTML table
+        table = generate_codon_usage_table(codon_usage)
+        # Return both codon usage data and table
+        return {"codon_usage": codon_usage, "table": table}
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
