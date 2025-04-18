@@ -11,9 +11,7 @@ router = APIRouter(
 
 
 @router.post("/")
-def dna_visualization(
-        sequence: Sequence,
-):
+def dna_visualization(sequence: Sequence):
     if sequence:
         sequence = functions.format_sequence(sequence)
         if functions.is_dna(sequence):

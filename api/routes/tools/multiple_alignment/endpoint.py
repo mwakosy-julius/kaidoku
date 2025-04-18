@@ -1,95 +1,39 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Form
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
-from typing import List, Dict
-import io
-from functions import align_sequences
+from .functions import align_sequences
 
-router = APIRouter(
-    prefix="/multiple_alignment",
-)
+router = APIRouter(prefix="/align")
 
-# Models
-class Taxon(BaseModel):
-    position: int
-    conservation: float
+class AlignRequest(BaseModel):
+    sequences: str
+    seq_type: str
 
-class Stats(BaseModel):
-    num_sequences: int
-    alignment_length: int
-    avg_conservation: float
+class AlignResponse(BaseModel):
+    alignment: str
 
-class AnalysisResponse(BaseModel):
-    taxa: List[Taxon]
-    stats: Stats
-    details: List[Dict]
-    clustal: str
-
-# Endpoints
-@router.post("/analyze", response_model=AnalysisResponse)
-async def analyze_sequences(
-    file: UploadFile = File(None),
-    fasta_text: str = Form(""),
-    seq_type: str = Form("nucleotide")
-):
-    """Perform multiple sequence alignment."""
+@router.post("/", response_model=AlignResponse)
+async def align(request: AlignRequest):
+    """
+    Align sequences using Clustal Omega API.
+    
+    Args:
+        request: Contains sequences (FASTA) and seq_type (dna/protein).
+    
+    Returns:
+        Alignment in Clustal format.
+    
+    Raises:
+        HTTPException: For invalid inputs or API errors.
+    """
     try:
-        if seq_type not in ["nucleotide", "protein"]:
-            raise HTTPException(status_code=400, detail="Sequence type must be 'nucleotide' or 'protein'")
-        
-        if file:
-            content = (await file.read()).decode("utf-8")
-        elif fasta_text.strip():
-            content = fasta_text
-        else:
-            raise HTTPException(status_code=400, detail="Provide FASTA file or text")
-        
-        taxa, stats, details_df, clustal = align_sequences(content, seq_type)
-        
-        return {
-            "taxa": taxa,
-            "stats": stats,
-            "details": details_df.to_dict(orient="records"),
-            "clustal": clustal
-        }
+        alignment = align_sequences(request.sequences, request.seq_type)
+        if alignment is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Alignment failed"
+            )
+        return {"alignment": alignment}
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
-@router.post("/download-csv")
-async def download_csv(
-    file: UploadFile = File(None),
-    fasta_text: str = Form(""),
-    seq_type: str = Form("nucleotide")
-):
-    """Download CSV of identity matrix."""
-    try:
-        if seq_type not in ["nucleotide", "protein"]:
-            raise HTTPException(status_code=400, detail="Sequence type must be 'nucleotide' or 'protein'")
-        
-        if file:
-            content = (await file.read()).decode("utf-8")
-        elif fasta_text.strip():
-            content = fasta_text
-        else:
-            raise HTTPException(status_code=400, detail="Provide FASTA file or text")
-        
-        _, _, details_df, _ = align_sequences(content, seq_type)
-        if details_df.empty:
-            raise HTTPException(status_code=400, detail="No alignment generated")
-        
-        csv_buffer = io.StringIO()
-        details_df.to_csv(csv_buffer, index=False)
-        csv_buffer.seek(0)
-        
-        return StreamingResponse(
-            io.BytesIO(csv_buffer.getvalue().encode("utf-8")),
-            media_type="text/csv",
-            headers={"Content-Disposition": "attachment; filename=metaalign_identity.csv"}
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
