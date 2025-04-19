@@ -2,7 +2,7 @@ from fastapi import HTTPException, status, APIRouter
 from pydantic import BaseModel
 from .functions import align_sequences
 
-router = APIRouter(prefix="/align")
+router = APIRouter(prefix="/multiple_alignment")
 
 
 class AlignRequest(BaseModel):

@@ -138,7 +138,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "name": "MusicDNA",
             "description": "Convert DNA sequences into musical patterns and melodies",
             "url": "/api/tools/musicdna",
-            "frontend_url": "/musicdna",
+            "frontend_url": "/music_dna",
         },
         {
             "name": "Blast",
