@@ -7,14 +7,15 @@ router = APIRouter(
     prefix="/pairwise_alignment",
 )
 
+
 class PairwiseAlignment(BaseModel):
     sequence1: str
     sequence2: str
     alignment_type: str = "Global_Alignment"
 
+
 @router.post("/")
 def pairwise_alignment(request: PairwiseAlignment):
-
     sequence1 = request.sequence1
     sequence2 = request.sequence2
     alignment_type = request.alignment_type
@@ -30,15 +31,27 @@ def pairwise_alignment(request: PairwiseAlignment):
                 results = functions.global_alignment(seq1, seq2, path_matrix, matrix)
             elif alignment_type == "Local_Alignment":
                 score_matrix, path_matrix = functions.lcs_local(seq1, seq2, matrix)
-                results = functions.local_alignment(seq1, seq2, score_matrix, path_matrix, matrix)
+                results = functions.local_alignment(
+                    seq1, seq2, score_matrix, path_matrix, matrix
+                )
             df = functions.table(sequence1, sequence2)
             bar_chart = functions.bar_chart(sequence1, sequence2)
             return {
-                'results': results,
-                'df': df.to_html(),
-                'bar_chart': bar_chart.to_html(),
-                'alignment_type': alignment_type,
+                "results": {
+                    "match_score": results[0],
+                    "gap_open": results[1],
+                    "gap_extend": results[2],
+                    "alignment_score": results[3],
+                    "sequence1_aligned": results[4],
+                    "sequence2_aligned": results[5],
+                },
+                "df": df.to_html(),
+                "bar_chart": bar_chart.to_html(),
+                "alignment_type": alignment_type,
             }
         else:
-            error = "One or both sequences contain invalid DNA characters."
-            return {'error': error}
+            raise HTTPException(
+                status_code=400, detail="Sequences must be DNA sequences"
+            )
+    else:
+        raise HTTPException(status_code=400, detail="Sequences cannot be empty")
