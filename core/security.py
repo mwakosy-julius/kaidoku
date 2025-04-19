@@ -11,7 +11,7 @@ from bson.objectid import ObjectId
 from core.config import settings
 from api.routes.auth.user_crud import get_user_by_email
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 600  # 10 hours
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -96,20 +96,22 @@ def create_refresh_token(user_id: str) -> str:
 
     return token
 
+
 async def store_refresh_token(user_id: str, token_id: str, expires: datetime) -> bool:
     """Store refresh token information in the database"""
     from core.db import db
-    
+
     token_data = {
         "user_id": ObjectId(user_id) if not isinstance(user_id, ObjectId) else user_id,
         "token_id": token_id,
         "expires": expires,
         "created_at": datetime.utcnow(),
-        "is_revoked": False
+        "is_revoked": False,
     }
-    
+
     result = await db.refresh_tokens.insert_one(token_data)
     return bool(result.inserted_id)
+
 
 async def get_user_from_refresh_token(token: str) -> Optional[User]:
     """Validate a refresh token and return the associated user"""
