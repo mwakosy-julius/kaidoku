@@ -34,7 +34,6 @@ packaging==24.2
 pandas==2.2.3
 passlib==1.7.4
 plotly==6.0.1
-psycopg2==2.9.10
 pyasn1==0.4.8
 pycparser==2.22
 pydantic==2.9.2
