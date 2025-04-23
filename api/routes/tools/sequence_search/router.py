@@ -3,12 +3,12 @@ from fastapi import APIRouter, HTTPException, status
 from . import functions
 
 router = APIRouter(
-    prefix="/blast",
+    prefix="/sequence_search",
 )
 
 
 @router.post("/")
-async def blast_sequence(data: str):
+async def search_sequence(data: str):
     """
     Perform BLAST search on a given DNA sequence.
     """
@@ -21,13 +21,11 @@ async def blast_sequence(data: str):
     try:
         genes_results = functions.fetch_gene(data)
         proteins_results = functions.fetch_protein(data)
-        gene_blast_results = functions.perform_blastn(data)
-        protein_blast_results = functions.perform_blastp(data)
+        
         results =  {
             "gene_results": genes_results,
             "protein_results": proteins_results,
-            "gene_blast_results": gene_blast_results,
-            "protein_blast_results": protein_blast_results,    
+               
         }
         return results
     except ValueError as ve:

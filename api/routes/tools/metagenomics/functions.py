@@ -3,98 +3,33 @@ from collections import defaultdict
 import re
 import pandas as pd
 
-import logging
-
-# Set up logging for debugging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def parse_fasta(fasta: str) -> Tuple[List[str], List[str]]:
-    """
-    Parse FASTA string, returning valid DNA sequences and errors for invalid ones.
-    
-    Args:
-        fasta: FASTA-formatted string (e.g., ">Seq1\nATGCC\n>Seq2\nGCTAA").
-    
-    Returns:
-        Tuple of (valid_sequences, errors):
-        - valid_sequences: List of DNA sequences (A, T, C, G, N, >= 21 bases).
-        - errors: List of error messages for invalid sequences.
-    """
-    valid_sequences = []
-    errors = []
+def parse_fasta(fasta: str) -> List[str]:
+    """Parse FASTA string, skipping invalid sequences."""
+    sequences = []
     current_seq = []
-    current_header = None
-    dna_pattern = re.compile(r'^[ATCGNatcgn]+$')  # Case-insensitive DNA
-
-    lines = fasta.strip().splitlines()
+    lines = fasta.strip().split('\n')
+    header = False
+    
     for line in lines:
         line = line.strip()
-        if not line:  # Skip empty lines
+        if not line:
             continue
         if line.startswith('>'):
-            # Process previous sequence
             if current_seq:
                 seq = ''.join(current_seq).upper()
-                if not seq:
-                    errors.append(f"Empty sequence for header: {current_header}")
-                elif not dna_pattern.match(seq):
-                    errors.append(f"Invalid DNA sequence for {current_header}: {seq[:20]}...")
-                elif len(seq) < 21:
-                    errors.append(f"Sequence too short for {current_header}: {len(seq)} bases")
-                else:
-                    valid_sequences.append(seq)
+                if re.match(r'^[ATCGN]+$', seq):
+                    sequences.append(seq)
                 current_seq = []
-            current_header = line
-        else:
-            # Validate line before appending
-            if dna_pattern.match(line):
-                current_seq.append(line)
-            else:
-                errors.append(f"Invalid characters in line for {current_header}: {line[:20]}...")
-
-    # Process final sequence
+            header = True
+        elif header:
+            current_seq.append(line)
+    
     if current_seq:
         seq = ''.join(current_seq).upper()
-        if not seq:
-            errors.append(f"Empty sequence for header: {current_header}")
-        elif not dna_pattern.match(seq):
-            errors.append(f"Invalid DNA sequence for {current_header}: {seq[:20]}...")
-        elif len(seq) < 21:
-            errors.append(f"Sequence too short for {current_header}: {len(seq)} bases")
-        else:
-            valid_sequences.append(seq)
-
-    logger.info(f"Parsed {len(valid_sequences)} valid sequences, {len(errors)} errors")
-    return valid_sequences, errors
-
-# def parse_fasta(fasta: str) -> List[str]:
-#     """Parse FASTA string, skipping invalid sequences."""
-#     sequences = []
-#     current_seq = []
-#     lines = fasta.strip().split('\n')
-#     header = False
+        if re.match(r'^[ATCGN]+$', seq):
+            sequences.append(seq)
     
-#     for line in lines:
-#         line = line.strip()
-#         if not line:
-#             continue
-#         if line.startswith('>'):
-#             if current_seq:
-#                 seq = ''.join(current_seq).upper()
-#                 if re.match(r'^[ATCGN]+$', seq):
-#                     sequences.append(seq)
-#                 current_seq = []
-#             header = True
-#         elif header:
-#             current_seq.append(line)
-    
-#     if current_seq:
-#         seq = ''.join(current_seq).upper()
-#         if re.match(r'^[ATCGN]+$', seq):
-#             sequences.append(seq)
-    
-#     return [seq for seq in sequences if len(seq) >= 21]
+    return [seq for seq in sequences if len(seq) >= 21]
 
 def get_kmers(sequence: str, k: int = 21) -> List[str]:
     """Extract k-mers, skipping ambiguous regions."""

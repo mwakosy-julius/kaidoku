@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from core.security import get_current_active_user
-from api.routes.tools.blast import router as blast_router
+from api.routes.tools.sequence_search import router as blast_router
 from api.routes.tools.codon_usage import router as codon_usage_router
 from api.routes.tools.consensus_maker import router as consensus_maker_router
 from api.routes.tools.data_compression import router as data_compression_router
