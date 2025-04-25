@@ -4,6 +4,7 @@ annotated-types==0.7.0
 anyio==4.9.0
 attrs==25.3.0
 bcrypt==4.3.0
+cachetools==5.5.2
 certifi==2024.8.30
 cffi==1.17.1
 charset-normalizer==3.4.1
@@ -61,10 +62,12 @@ sounddevice==0.5.1
 SQLAlchemy==2.0.36
 sqlmodel==0.0.22
 starlette==0.41.0
+tenacity==9.1.2
 typer==0.12.5
 typing_extensions==4.12.2
 tzdata==2025.2
 urllib3==2.2.3
 uvicorn==0.32.0
+uvloop==0.21.0
 watchfiles==0.24.0
 websockets==13.1
