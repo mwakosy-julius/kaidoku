@@ -2,7 +2,7 @@
 # import subprocess
 # import math
 import numpy as np
-import sounddevice as sd
+# import sounddevice as sd
 
 # devices = sd.query_devices()
 
@@ -106,21 +106,21 @@ def melody_maker(sequence):
 #     else:
 #         return 1.0
 
-def play_melody(melody):
-    melody_duration = 0.5  
-    melody_wave = []
-    for note in melody:
-        frequency = notes[note]  
-        note_wave = generate_sine_wave(frequency, melody_duration)  
-        melody_wave.append(note_wave)  
+# def play_melody(melody):
+#     melody_duration = 0.5  
+#     melody_wave = []
+#     for note in melody:
+#         frequency = notes[note]  
+#         note_wave = generate_sine_wave(frequency, melody_duration)  
+#         melody_wave.append(note_wave)  
 
-    melody_wave_combined = combine_waves(melody_wave)
+#     melody_wave_combined = combine_waves(melody_wave)
 
-    # volume_factor = get_system_volume()
+#     # volume_factor = get_system_volume()
 
-    melody_wave_scaled = np.int16(melody_wave_combined * 32767)
-    sd.play(melody_wave_scaled, samplerate=44100)
-    sd.wait()
+#     melody_wave_scaled = np.int16(melody_wave_combined * 32767)
+#     sd.play(melody_wave_scaled, samplerate=44100)
+#     sd.wait()
 
     # if bluetooth_device is not None:
     #     sd.default.device = (None, bluetooth_device) 
