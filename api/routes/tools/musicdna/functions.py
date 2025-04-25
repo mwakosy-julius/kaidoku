@@ -63,48 +63,48 @@ def melody_maker(sequence):
     return melody
 
 
-def get_system_volume():
-    if sys.platform.startswith("win"):
-        try:
-            from ctypes import cast, POINTER
-            from comtypes import CLSCTX_ALL
-            from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-            devices = AudioUtilities.GetSpeakers()
-            interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-            volume_interface = cast(interface, POINTER(IAudioEndpointVolume))
-            currentVolumeDb = volume_interface.GetMasterVolumeLevel()
-            return math.pow(10, currentVolumeDb / 20.0)
-        except Exception:
-            return 1.0
+# def get_system_volume():
+#     if sys.platform.startswith("win"):
+#         try:
+#             from ctypes import cast, POINTER
+#             from comtypes import CLSCTX_ALL
+#             from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+#             devices = AudioUtilities.GetSpeakers()
+#             interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+#             volume_interface = cast(interface, POINTER(IAudioEndpointVolume))
+#             currentVolumeDb = volume_interface.GetMasterVolumeLevel()
+#             return math.pow(10, currentVolumeDb / 20.0)
+#         except Exception:
+#             return 1.0
 
-    elif sys.platform.startswith("darwin"):
-        try:
-            result = subprocess.run(
-                ['osascript', '-e', 'output volume of (get volume settings)'],
-                capture_output=True, text=True
-            )
-            vol = float(result.stdout.strip())
-            return vol / 100.0
-        except Exception:
-            return 1.0
+#     elif sys.platform.startswith("darwin"):
+#         try:
+#             result = subprocess.run(
+#                 ['osascript', '-e', 'output volume of (get volume settings)'],
+#                 capture_output=True, text=True
+#             )
+#             vol = float(result.stdout.strip())
+#             return vol / 100.0
+#         except Exception:
+#             return 1.0
 
-    elif sys.platform.startswith("linux"):
-        try:
-            result = subprocess.run(
-                ['amixer', 'get', 'Master'],
-                capture_output=True, text=True
-            )
-            import re
-            m = re.search(r'\[(\d+)%\]', result.stdout)
-            if m:
-                vol = float(m.group(1))
-                return vol / 100.0
-            else:
-                return 1.0
-        except Exception:
-            return 1.0
-    else:
-        return 1.0
+#     elif sys.platform.startswith("linux"):
+#         try:
+#             result = subprocess.run(
+#                 ['amixer', 'get', 'Master'],
+#                 capture_output=True, text=True
+#             )
+#             import re
+#             m = re.search(r'\[(\d+)%\]', result.stdout)
+#             if m:
+#                 vol = float(m.group(1))
+#                 return vol / 100.0
+#             else:
+#                 return 1.0
+#         except Exception:
+#             return 1.0
+#     else:
+#         return 1.0
 
 def play_melody(melody):
     melody_duration = 0.5  
@@ -116,9 +116,9 @@ def play_melody(melody):
 
     melody_wave_combined = combine_waves(melody_wave)
 
-    volume_factor = get_system_volume()
+    # volume_factor = get_system_volume()
 
-    melody_wave_scaled = np.int16(melody_wave_combined * volume_factor * 32767)
+    melody_wave_scaled = np.int16(melody_wave_combined * 32767)
     sd.play(melody_wave_scaled, samplerate=44100)
     sd.wait()
 

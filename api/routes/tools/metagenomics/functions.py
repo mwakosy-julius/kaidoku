@@ -2,6 +2,7 @@ from typing import List, Dict, Tuple
 from collections import defaultdict
 import re
 import pandas as pd
+import numpy as np
 
 def parse_fasta(fasta: str) -> List[str]:
     """Parse FASTA string, skipping invalid sequences."""
@@ -29,7 +30,10 @@ def parse_fasta(fasta: str) -> List[str]:
         if re.match(r'^[ATCGN]+$', seq):
             sequences.append(seq)
     
-    return [seq for seq in sequences if len(seq) >= 21]
+    valid_sequences = [seq for seq in sequences if len(seq) >= 21]
+    if not valid_sequences:
+        raise ValueError("No valid sequences found (min length 21bp, only ATCGN allowed)")
+    return valid_sequences
 
 def get_kmers(sequence: str, k: int = 21) -> List[str]:
     """Extract k-mers, skipping ambiguous regions."""
@@ -84,9 +88,6 @@ def hamming_distance(s1: str, s2: str) -> int:
 def profile_taxa(fasta: str) -> Tuple[List[Dict[str, float]], Dict[str, int], pd.DataFrame]:
     """Profile taxa with approximate k-mer matching."""
     sequences = parse_fasta(fasta)
-    if not sequences:
-        raise ValueError("Invalid FASTA format or reads too short (min 21bp)")
-    
     kmer_db = mock_reference_db()
     taxa_counts = defaultdict(int)
     total_kmers = 0
@@ -110,14 +111,18 @@ def profile_taxa(fasta: str) -> Tuple[List[Dict[str, float]], Dict[str, int], pd
                     "genus": genus,
                     "phylum": best_match["phylum"],
                     "kmer": kmer,
-                    "distance": min_dist
+                    "distance": float(min_dist)  # Ensure float
                 })
     
     if total_kmers == 0:
-        raise ValueError("No taxa identified; try reads with common microbial k-mers")
+        raise ValueError("No taxa identified; ensure reads contain common microbial k-mers (21bp)")
     
     taxa = [
-        {"genus": genus, "abundance": count / total_kmers * 100}
+        {
+            "genus": genus,
+            "abundance": count / total_kmers * 100,
+            "confidence": count / total_kmers * 100  # Added for frontend
+        }
         for genus, count in taxa_counts.items()
     ]
     taxa = sorted(taxa, key=lambda x: x["abundance"], reverse=True)[:10]
@@ -136,5 +141,10 @@ def profile_taxa(fasta: str) -> Tuple[List[Dict[str, float]], Dict[str, int], pd
         }).reset_index()
         details_df.rename(columns={"kmer": "kmer_count"}, inplace=True)
         details_df["confidence"] = details_df["kmer_count"] / details_df["kmer_count"].sum() * 100
+        # Replace NaN with 0 and ensure numeric types
+        details_df = details_df.fillna(0)
+        details_df["distance"] = details_df["distance"].astype(float)
+        details_df["confidence"] = details_df["confidence"].astype(float)
+        details_df["kmer_count"] = details_df["kmer_count"].astype(int)
     
     return taxa, stats, details_df
