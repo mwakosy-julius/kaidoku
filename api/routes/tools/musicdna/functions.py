@@ -1,10 +1,10 @@
-import sys
-import subprocess
-import math
+# import sys
+# import subprocess
+# import math
 import numpy as np
 import sounddevice as sd
 
-devices = sd.query_devices()
+# devices = sd.query_devices()
 
 # for i, dev in enumerate(devices):
 #     if 'bluetooth' in dev['name'].lower():
