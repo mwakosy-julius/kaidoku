@@ -38,9 +38,9 @@ class Settings(BaseSettings):
     COOKIE_PATH: str = "/auth"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
-    CORS_ORIGINS: Annotated[
-        list[AnyUrl] | str, BeforeValidator(parse_cors)
-    ] = []
+    CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = [
+        "https://kaidoku-omega.vercel.app",
+    ]
 
     @computed_field
     @property
@@ -50,8 +50,8 @@ class Settings(BaseSettings):
         ]
 
     PROJECT_NAME: str = "Kaidoku API"
-    FRONTEND_HOST: str = "http://localhost:5173" 
-    SENTRY_DSN: HttpUrl | None = None # security
+    FRONTEND_HOST: str = "http://localhost:5173"
+    SENTRY_DSN: HttpUrl | None = None  # security
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
@@ -74,7 +74,6 @@ class Settings(BaseSettings):
             port=self.POSTGRES_PORT,
             path=self.POSTGRES_DB,
         )
-
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "change":
