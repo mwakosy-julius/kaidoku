@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from api.routes.tools.codon_usage.functions import (
+    format_sequence,
+    is_dna,
     calculate_codon_usage,
     generate_codon_usage_table,
 )
@@ -29,11 +31,14 @@ async def calculate_codon_usage_endpoint(data: CodonUsageRequest):
         )
 
     try:
-        # Pass Sequence model to calculate_codon_usage
-        codon_usage = calculate_codon_usage(data.sequence)
-        # Generate HTML table
+        codon_sequence = format_sequence(data.sequence)
+        if not is_dna(codon_sequence):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Incorrect DNA sequence",
+            )
+        codon_usage = calculate_codon_usage(codon_sequence)
         table = generate_codon_usage_table(codon_usage)
-        # Return both codon usage data and table
         return {"codon_usage": codon_usage, "table": table}
     except Exception as e:
         raise HTTPException(

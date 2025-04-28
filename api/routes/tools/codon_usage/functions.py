@@ -92,6 +92,19 @@ GENETIC_CODE_TABLE_ORDER = [
     ["GTG", "GCG", "GAG", "GGG"],
 ]
 
+def format_sequence(sequence):
+    sequence = sequence.upper()
+    if sequence[0] == ">":
+        sequence = sequence.splitlines()[1:]
+        sequence = "".join(sequence).strip()
+    else:
+        sequence = "".join(sequence.splitlines()).strip()
+    return sequence
+
+
+def is_dna(seq):
+    return set(seq).issubset({"A", "C", "G", "T"})
+
 
 def calculate_codon_usage(sequence: str):
     sequence = sequence.upper()
