@@ -19,11 +19,8 @@ async def create_consensus(data: str):
         )
 
     try:
-        # Parse the input sequence
         sequences = parse_fasta_sequences(data)
-        # Generate the consensus sequence
         consensus = generate_consensus(sequences)
-        # Return the consensus sequence
         return {"consensus": consensus}
 
     except Exception as e:

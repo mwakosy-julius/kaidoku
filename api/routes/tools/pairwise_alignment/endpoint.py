@@ -34,6 +34,7 @@ def pairwise_alignment(request: PairwiseAlignment):
                 results = functions.local_alignment(
                     seq1, seq2, score_matrix, path_matrix, matrix
                 )
+            # similarity = round(results[0]/(results[0]+results[2]+results[3])*100)
             df = functions.table(sequence1, sequence2)
             bar_chart = functions.bar_chart(sequence1, sequence2)
             return {
@@ -42,6 +43,7 @@ def pairwise_alignment(request: PairwiseAlignment):
                     "gap_open": results[1],
                     "gap_extend": results[2],
                     "alignment_score": results[3],
+                    "similarity": round(results[0]/(results[0]+results[2]+results[3])*100),
                     "sequence1_aligned": results[4],
                     "sequence2_aligned": results[5],
                 },
