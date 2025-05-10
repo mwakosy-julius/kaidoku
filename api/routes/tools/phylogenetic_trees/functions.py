@@ -1,4 +1,5 @@
 import numpy as np
+from fastapi import HTTPException
 
 # Function to compute Hamming distance matrix
 def compute_distance_matrix(fasta_input):
@@ -26,8 +27,8 @@ def compute_distance_matrix(fasta_input):
     n = len(seqs)
     
     seq_length = len(seqs[0])
-    if not all(len(seq) == seq_length for seq in seqs):
-        raise HTTPException(status_code=400, detail="All sequences must be the same length")
+    # if not all(len(seq) == seq_length for seq in seqs):
+    #     raise HTTPException(status_code=400, detail="All sequences must be the same length")
     
     dist_matrix = np.zeros((n, n))
     for i in range(n):

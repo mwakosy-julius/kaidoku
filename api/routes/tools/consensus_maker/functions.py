@@ -30,8 +30,8 @@ def parse_fasta_sequences(fasta_input):
 
 def generate_consensus(sequences: List[str], tie_breaker: str = "random") -> Optional[str]:
     sequence_length = len(sequences[0])
-    if not all(len(seq) == sequence_length for seq in sequences):
-        raise ValueError("All sequences must have the same length")
+    # if not all(len(seq) == sequence_length for seq in sequences):
+    #     raise ValueError("All sequences must have the same length")
     
     valid_nucleotides = set("ATGCatgc-")
     for seq in sequences:
