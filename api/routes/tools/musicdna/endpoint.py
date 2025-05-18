@@ -19,5 +19,6 @@ def musicdna(request: Sequence):
     if not functions.is_dna(sequence):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid DNA sequence")
     
-    melody = functions.melody_maker(sequence)
+    melody_freq = functions.melody_maker(sequence)
+    melody = functions.generate_combined_wave(melody_freq)
     return {"melody": melody}

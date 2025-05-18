@@ -134,11 +134,17 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "url": "/api/tools/dna_visualization",
             "frontend_url": "/dna_visualization",
         },
+        # {
+        #     "name": "MusicDNA",
+        #     "description": "Convert DNA sequences into musical patterns and melodies",
+        #     "url": "/api/tools/musicdna",
+        #     "frontend_url": "/music_dna",
+        # },
         {
-            "name": "MusicDNA",
-            "description": "Convert DNA sequences into musical patterns and melodies",
-            "url": "/api/tools/musicdna",
-            "frontend_url": "/music_dna",
+            "name": "Sequence Search",
+            "description": "Search for specific DNA and Protein sequences in a database",
+            "url": "/api/tools/sequence_search",
+            "frontend_url": "/sequence_search",
         },
         {
             "name": "Blast",
@@ -181,6 +187,18 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Analyze genetic material from environmental samples",
             "url": "/api/tools/metagenomics",
             "frontend_url": "/metagenomics",
+        },
+        {
+            "name": "Protein Structure Predictor",
+            "description": "Predicts the stucture of protein from amino acid sequence",
+            "url": "/api/tools/protein_structure",
+            "frontend_url": "/protein-structure",
+        },
+        {
+            "name": "Sequence Mutator",
+            "description": "Introduce Mutations to sequences to see Effects",
+            "url": "/api/tools/sequence_mutator",
+            "frontend_url": "/sequence-mutator",
         },
     ]
     return tools

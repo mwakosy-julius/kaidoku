@@ -152,7 +152,8 @@ def blast_sequence(
     poll_interval = max(rtoe, 5)
     
     for attempt in range(max_attempts):
-        logger.info(f"Checking BLAST status (attempt {attempt + 1}/{max_attempts})...")
+        logger.info(f"Checking BLAST statu (attempt {attempt + 1}/{max_attempts})...")
+        logger.debug(f"Polling URL: {blast_url}, Parameters: {payload}")
         response = session.get(blast_url, params=payload, timeout=30)
         response.raise_for_status()
         

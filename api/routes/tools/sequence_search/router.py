@@ -8,7 +8,7 @@ router = APIRouter(
 
 
 @router.post("/")
-async def search_sequence(data: str):
+async def search_sequence(data: str, query_type: str):
     """
     Perform BLAST search on a given DNA sequence.
     """
@@ -19,8 +19,8 @@ async def search_sequence(data: str):
         )
 
     try:
-        genes_results = functions.fetch_gene(data)
-        proteins_results = functions.fetch_protein(data)
+        genes_results = functions.fetch_gene(data, query_type == "gene")
+        proteins_results = functions.fetch_protein(data, query_type == "protein")
         
         results =  {
             "gene_results": genes_results,

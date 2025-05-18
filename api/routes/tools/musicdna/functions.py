@@ -1,131 +1,85 @@
-# import sys
-# import subprocess
-# import math
 import numpy as np
-# import sounddevice as sd
-
-# devices = sd.query_devices()
-
-# for i, dev in enumerate(devices):
-#     if 'bluetooth' in dev['name'].lower():
-#         bluetooth_device = i
-#         break
 
 def generate_sine_wave(frequency, duration, sample_rate=44100):
-    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)  
-    wave = np.sin(2 * np.pi * frequency * t)  
+    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+    wave = np.sin(2 * np.pi * frequency * t)
     return wave
 
 def combine_waves(waves):
     return np.concatenate(waves)
 
-notes = {
-    'C': 261.63,
-    'D': 293.66,
-    'E': 329.63,
-    'F': 349.23,
-    'G': 392.00,
-    'A': 440.00,
-    'B': 493.88
-}
-
 def sequence_validator(sequence):
     sequence = sequence.upper()
-
     if sequence[0] == ">":
         sequence = sequence.splitlines()
         sequence = sequence[1:]
         sequence = "".join(sequence).strip()
-
     else:
         sequence = sequence.splitlines()
         sequence = "".join(sequence).strip()
-
     return sequence
 
 def is_dna(sequence):
-    if set(sequence).issubset({"A", "C", "G", "T"}):
-        return True
-    else:
-        return False
+    return set(sequence).issubset({"A", "C", "G", "T"})
+
+def get_next_index(current_index, step, scale_length):
+    new_index = current_index + step
+    if new_index < 0:
+        new_index = -new_index  # Reflect at lower bound
+    elif new_index >= scale_length:
+        new_index = 2 * (scale_length - 1) - new_index  # Reflect at upper bound
+    return new_index
 
 def melody_maker(sequence):
-    melody = []
+    melody_scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]  # C4 to C5
+    step_mapping = {'A': 1, 'T': -1, 'C': 2, 'G': -2}
+    current_index = 0
+    scale_length = len(melody_scale)
+    melody_freq = []
+
     for nucleotide in sequence:
-        if nucleotide == 'A':
-            melody.extend(['C','E','G'])
-        elif nucleotide == 'C':
-            melody.extend(['E','G','B'])
-        elif nucleotide == 'G':
-            melody.extend(['F','A','C'])
-        elif nucleotide == 'T':
-            melody.extend(['D','F','A'])
-    return melody
+        if nucleotide in step_mapping:
+            step = step_mapping[nucleotide]
+            current_index = get_next_index(current_index, step, scale_length)
+            melody_freq.append(melody_scale[current_index])
 
+    return melody_freq
 
-# def get_system_volume():
-#     if sys.platform.startswith("win"):
-#         try:
-#             from ctypes import cast, POINTER
-#             from comtypes import CLSCTX_ALL
-#             from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
-#             devices = AudioUtilities.GetSpeakers()
-#             interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
-#             volume_interface = cast(interface, POINTER(IAudioEndpointVolume))
-#             currentVolumeDb = volume_interface.GetMasterVolumeLevel()
-#             return math.pow(10, currentVolumeDb / 20.0)
-#         except Exception:
-#             return 1.0
+def get_chord_freqs(melody_freq, melody_scale, chord_scale):
+    try:
+        index = melody_scale.index(melody_freq)
+    except ValueError:
+        index = min(range(len(melody_scale)), key=lambda i: abs(melody_scale[i] - melody_freq))
+    # Simplified chord: root, third, fifth
+    chord_indices = [index % 7, (index + 2) % 7, (index + 4) % 7]
+    chord_freqs = [chord_scale[i] for i in chord_indices]
+    return chord_freqs
 
-#     elif sys.platform.startswith("darwin"):
-#         try:
-#             result = subprocess.run(
-#                 ['osascript', '-e', 'output volume of (get volume settings)'],
-#                 capture_output=True, text=True
-#             )
-#             vol = float(result.stdout.strip())
-#             return vol / 100.0
-#         except Exception:
-#             return 1.0
+def generate_chord_wave(chord_freqs, duration, sample_rate=44100):
+    t = np.linspace(0, duration, int(sample_rate * duration), endpoint=False)
+    chord_wave = sum(np.sin(2 * np.pi * freq * t) for freq in chord_freqs)
+    return chord_wave / len(chord_freqs)  # Normalize
 
-#     elif sys.platform.startswith("linux"):
-#         try:
-#             result = subprocess.run(
-#                 ['amixer', 'get', 'Master'],
-#                 capture_output=True, text=True
-#             )
-#             import re
-#             m = re.search(r'\[(\d+)%\]', result.stdout)
-#             if m:
-#                 vol = float(m.group(1))
-#                 return vol / 100.0
-#             else:
-#                 return 1.0
-#         except Exception:
-#             return 1.0
-#     else:
-#         return 1.0
+def generate_combined_wave(melody_freq, chunk_size=4, duration_per_note=0.25, sample_rate=44100):
+    melody_scale = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25]  # C4 to C5
+    chord_scale = [130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94, 261.63]  # C3 to C4
+    combined_waves = []
 
-# def play_melody(melody):
-#     melody_duration = 0.5  
-#     melody_wave = []
-#     for note in melody:
-#         frequency = notes[note]  
-#         note_wave = generate_sine_wave(frequency, melody_duration)  
-#         melody_wave.append(note_wave)  
+    for i in range(0, len(melody_freq), chunk_size):
+        chunk = melody_freq[i:i + chunk_size]
+        if not chunk:
+            break
 
-#     melody_wave_combined = combine_waves(melody_wave)
+        # Generate melody wave for chunk
+        melody_wave_chunk = np.concatenate([generate_sine_wave(freq, duration_per_note, sample_rate) for freq in chunk])
 
-#     # volume_factor = get_system_volume()
+        # Generate chord wave based on first note
+        chord_freqs = get_chord_freqs(chunk[0], melody_scale, chord_scale)
+        chunk_duration = len(chunk) * duration_per_note
+        chord_wave = generate_chord_wave(chord_freqs, chunk_duration, sample_rate)
 
-#     melody_wave_scaled = np.int16(melody_wave_combined * 32767)
-#     sd.play(melody_wave_scaled, samplerate=44100)
-#     sd.wait()
+        # Mix and normalize
+        combined_wave = (melody_wave_chunk + chord_wave) / 2
+        combined_waves.append(combined_wave)
 
-    # if bluetooth_device is not None:
-    #     sd.default.device = (None, bluetooth_device) 
-    #     # sd.play(melody_wave_scaled, samplerate=44100)
-    #     # sd.wait()
-    # else:
-    #     # sd.play(melody_wave_scaled, samplerate=44100)
-    #     # sd.wait()
+    return np.concatenate(combined_waves)

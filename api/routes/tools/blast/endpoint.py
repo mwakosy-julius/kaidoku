@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional, List, Dict
 from . import functions
 
-router = APIRouter(prefix="/blast", tags=["blast"])
+router = APIRouter(prefix="/blast")
 
 class BlastRequest(BaseModel):
     sequence: str = Field(..., min_length=1, description="Raw or FASTA sequence")
