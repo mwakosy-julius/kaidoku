@@ -1,15 +1,15 @@
 import requests
 
-def fetch_gene(text):
+def fetch_gene(query):
     try:
-        # query = text.replace(" ", "+")
+        # query = query.replace(" ", "+")
         
         config = {
             "headers": {
             }
         }
         
-        esearch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nuccore&term={text}&rettype=fasta&retmode=json&retmax=10"
+        esearch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=nuccore&term={query}&rettype=fasta&retmode=json&retmax=10"
         esearch_response = requests.get(esearch_url, headers=config.get("headers", {}))
         esearch_response.raise_for_status() 
         
@@ -34,16 +34,16 @@ def fetch_gene(text):
     except requests.exceptions.RequestException as e:
         return {"error": str(e)}
 
-def fetch_protein(text):
+def fetch_protein(query):
     try:
-        # query = text.replace(" ", "+")
+        # query = query.replace(" ", "+")
         
         config = {
             "headers": {
             }
         }
         
-        esearch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=protein&term={text}&rettype=fasta&retmode=json&retmax=10"
+        esearch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=protein&term={query}&rettype=fasta&retmode=json&retmax=10"
         esearch_response = requests.get(esearch_url, headers=config.get("headers", {}))
         esearch_response.raise_for_status() 
         

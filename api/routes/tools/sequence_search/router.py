@@ -1,32 +1,40 @@
 from fastapi import APIRouter, HTTPException, status
+from pydantic import BaseModel
 
 from . import functions
+
+class SearchRequest(BaseModel):
+    query: str
+    query_type: str = "gene"  # Default to "gene" if not provided
 
 router = APIRouter(
     prefix="/sequence_search",
 )
 
 
+
 @router.post("/")
-async def search_sequence(data: str, query_type: str):
+async def search_sequence(request: SearchRequest):
     """
     Perform BLAST search on a given DNA sequence.
     """
-    if not data:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A DNA sequence is required",
-        )
+    # if not query:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_400_BAD_REQUEST,
+    #         detail="A DNA sequence is required",
+    #     )
 
     try:
-        genes_results = functions.fetch_gene(data, query_type == "gene")
-        proteins_results = functions.fetch_protein(data, query_type == "protein")
+        if request.query_type == "gene":
+            gene_results = functions.fetch_gene(request.query)
+        elif request.query_type == "protein":
+            protein_results = functions.fetch_protein(request.query)
         
-        results =  {
-            "gene_results": genes_results,
-            "protein_results": proteins_results,
-               
+        results = {
+            "gene_results": gene_results,
+            "protein_results": protein_results,
         }
+        
         return results
     except ValueError as ve:
         raise HTTPException(
