@@ -192,13 +192,13 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "name": "Protein Structure Predictor",
             "description": "Predicts the stucture of protein from amino acid sequence",
             "url": "/api/tools/protein_structure",
-            "frontend_url": "/protein-structure",
+            "frontend_url": "/protein_structure",
         },
         {
             "name": "Sequence Mutator",
             "description": "Introduce Mutations to sequences to see Effects",
             "url": "/api/tools/sequence_mutator",
-            "frontend_url": "/sequence-mutator",
+            "frontend_url": "/sequence_mutator",
         },
     ]
     return tools
