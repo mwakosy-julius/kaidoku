@@ -26,13 +26,12 @@ async def search_sequence(request: SearchRequest):
 
     try:
         if request.query_type == "gene":
-            gene_results = functions.fetch_gene(request.query)
+            sequence_results = functions.fetch_gene(request.query)
         elif request.query_type == "protein":
-            protein_results = functions.fetch_protein(request.query)
+            sequence_results = functions.fetch_protein(request.query)
         
         results = {
-            "gene_results": gene_results,
-            "protein_results": protein_results,
+            "sequence_results": sequence_results,
         }
         
         return results

@@ -63,11 +63,7 @@ def parse_fasta(fasta: str) -> str:
     
     raise ValueError("No valid sequences found in FASTA input")
 
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_exponential(multiplier=1, min=4, max=10),
-    retry=retry_if_exception_type((requests.RequestException, ValueError))
-)
+
 def blast_sequence(
     sequence: str,
     program: str = 'blastn',

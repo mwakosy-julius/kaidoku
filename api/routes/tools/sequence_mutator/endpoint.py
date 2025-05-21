@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from . import functions
 
-router = APIRouter(prefix="/mutator")
+router = APIRouter(prefix="/sequence_mutator")
 
 class MutationRequest(BaseModel):
     sequence: str

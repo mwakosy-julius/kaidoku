@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 from . import functions
 
-router = APIRouter(prefix="/structure_predictor")
+router = APIRouter(prefix="/protein_structure")
 
 class PredictionRequest(BaseModel):
     sequence: str
