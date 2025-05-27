@@ -1,6 +1,15 @@
 from typing import Dict
 import random
 
+def format_sequence(sequence):
+    sequence = sequence.upper()
+    if sequence[0] == ">":
+        sequence = sequence.splitlines()[1:]
+        sequence = "".join(sequence).strip()
+    else:
+        sequence = "".join(sequence.splitlines()).strip()
+    return sequence
+
 def validate_sequence(sequence: str) -> bool:
     """Validate that the sequence contains only standard amino acids."""
     valid_amino_acids = set("ACDEFGHIKLMNPQRSTVWY")
@@ -14,7 +23,9 @@ def predict_structure(sequence: str) -> Dict:
     """
     if not sequence:
         return {"error": "Sequence is required"}
-
+    
+    sequence = format_sequence(sequence)
+    
     if not validate_sequence(sequence):
         return {"error": "Invalid amino acid sequence. Use A,C,D,E,F,G,H,I,K,L,M,N,P,Q,R,S,T,V,W,Y"}
 

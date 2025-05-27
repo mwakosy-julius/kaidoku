@@ -7,9 +7,10 @@ router = APIRouter(
 
 @router.get("/")
 def variant_call(ref_fasta: str, sample_fasta: str):
-    ref = functions.parse_fasta(ref_fasta)
-    sample = functions.parse_fasta(sample_fasta)
-    if not ref or not sample:
+    ref = functions.format_sequence(ref_fasta)
+    sample = functions.format_sequence(sample_fasta)
+    if functions.is_dna(ref) and functions.is_dna(sample):
+        variants = functions.call_variants(ref, sample)
+    else:
         raise HTTPException(status_code=400, detail="Invalid FASTA")
-    variants = functions.call_variants(ref, sample)
     return {"variants": variants}

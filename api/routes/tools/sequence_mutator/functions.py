@@ -1,6 +1,15 @@
 from typing import Dict, Optional
 import random
 
+def format_sequence(sequence):
+    sequence = sequence.upper()
+    if sequence[0] == ">":
+        sequence = sequence.splitlines()[1:]
+        sequence = "".join(sequence).strip()
+    else:
+        sequence = "".join(sequence.splitlines()).strip()
+    return sequence
+
 def validate_sequence(sequence: str, seq_type: str) -> bool:
     """Validate DNA or protein sequence."""
     sequence = sequence.strip().upper()
@@ -17,7 +26,9 @@ def mutate_sequence(sequence: str, seq_type: str, mutation_type: str, mutation_r
     """
     if not sequence:
         return {"error": "Sequence is required"}
-
+    
+    sequence = format_sequence(sequence)
+    
     sequence = sequence.strip().upper()
     if not validate_sequence(sequence, seq_type):
         return {"error": f"Invalid {seq_type} sequence. Use {'ACGT' if seq_type == 'dna' else 'ACDEFGHIKLMNPQRSTVWY'}."}

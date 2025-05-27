@@ -7,6 +7,8 @@ import logging
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from cachetools import TTLCache
 from fastapi import HTTPException
+import asyncio
+import httpx
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +21,15 @@ cache = TTLCache(maxsize=100, ttl=3600)
 DNA_PATTERN = re.compile(r'^[ATCGNRYSWKMBDHVatcgnryswkmbdhv]+$')
 PROTEIN_PATTERN = re.compile(r'^[ACDEFGHIKLMNPQRSTVWYacdefghiklmnpqrstvwy]+$')
 
+def format_sequence(sequence):
+    sequence = sequence.upper()
+    if sequence[0] == ">":
+        sequence = sequence.splitlines()[1:]
+        sequence = "".join(sequence).strip()
+    else:
+        sequence = "".join(sequence.splitlines()).strip()
+    return sequence
+
 def validate_sequence(sequence: str, program: str) -> None:
     """Validate sequence for BLAST program."""
     if program == 'blastn':
@@ -30,41 +41,41 @@ def validate_sequence(sequence: str, program: str) -> None:
     else:
         raise ValueError(f"Unsupported BLAST program: {program}")
 
-def parse_fasta(fasta: str) -> str:
-    """Parse FASTA input and return the first valid sequence."""
-    sequences = []
-    current_seq = []
-    current_header = None
-    lines = fasta.strip().splitlines()
+# def parse_fasta(fasta: str) -> str:
+#     """Parse FASTA input and return the first valid sequence."""
+#     sequences = []
+#     current_seq = []
+#     current_header = None
+#     lines = fasta.strip().splitlines()
     
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-        if line.startswith('>'):
-            if current_seq:
-                seq = ''.join(current_seq).upper()
-                sequences.append((current_header, seq))
-                current_seq = []
-            current_header = line
-        else:
-            current_seq.append(line)
+#     for line in lines:
+#         line = line.strip()
+#         if not line:
+#             continue
+#         if line.startswith('>'):
+#             if current_seq:
+#                 seq = ''.join(current_seq).upper()
+#                 sequences.append((current_header, seq))
+#                 current_seq = []
+#             current_header = line
+#         else:
+#             current_seq.append(line)
     
-    if current_seq:
-        seq = ''.join(current_seq).upper()
-        sequences.append((current_header, seq))
+#     if current_seq:
+#         seq = ''.join(current_seq).upper()
+#         sequences.append((current_header, seq))
     
-    if not sequences:
-        raise ValueError("No sequences found in FASTA input")
+#     if not sequences:
+#         raise ValueError("No sequences found in FASTA input")
     
-    for header, seq in sequences:
-        if seq:
-            return seq
+#     for header, seq in sequences:
+#         if seq:
+#             return seq
     
-    raise ValueError("No valid sequences found in FASTA input")
+#     raise ValueError("No valid sequences found in FASTA input")
 
 
-def blast_sequence(
+async def blast_sequence(
     sequence: str,
     program: str = 'blastn',
     database: str = 'nt',
@@ -92,9 +103,11 @@ def blast_sequence(
         HTTPException: For API failures.
     """
     # Handle FASTA input
-    if sequence.strip().startswith('>'):
-        sequence = parse_fasta(sequence)
+    # if sequence.strip().startswith('>'):
+    #     sequence = parse_fasta(sequence)
     
+    sequence = format_sequence(sequence)
+
     # Validate sequence
     validate_sequence(sequence, program)
     
@@ -139,27 +152,46 @@ def blast_sequence(
     logger.info(f"RID: {rid}, RTOE: {rtoe} seconds")
     
     # Poll for results
-    payload = {
-        'CMD': 'Get',
-        'RID': rid,
-        'FORMAT_TYPE': 'XML',
-    }
-    max_attempts = 30
-    poll_interval = max(rtoe, 5)
-    
-    for attempt in range(max_attempts):
-        logger.info(f"Checking BLAST statu (attempt {attempt + 1}/{max_attempts})...")
-        logger.debug(f"Polling URL: {blast_url}, Parameters: {payload}")
-        response = session.get(blast_url, params=payload, timeout=30)
-        response.raise_for_status()
-        
-        root = ET.fromstring(response.text)
-        status = root.find(".//Status")
-        if status is not None and status.text == "READY":
-            break
-        if attempt == max_attempts - 1:
-            raise HTTPException(status_code=500, detail="BLAST job timed out")
-        time.sleep(poll_interval)
+    async def check_blast_status(session:httpx.AsyncClient, rid, blast_url):
+        payload = {
+            'CMD': 'Get',
+            'RID': rid,
+            'FORMAT_TYPE': 'XML',
+        }
+        try:
+            response = await session.get(blast_url, params=payload, timeout=5.0)
+            response.raise_for_status()
+            text = response.text
+            print(text)
+            root = ET.fromstring(text)
+            status = root.find(".//Status")
+            return status, root
+        except httpx.TimeoutException:
+            raise HTTPException(status_code=504, detail="BLAST server request timed out")
+
+    async def poll_blast_results():
+        async with httpx.AsyncClient() as session:
+            max_attempts = 30
+            poll_interval = max(rtoe, 5)
+            
+            for attempt in range(max_attempts):
+                logger.info(f"Checking BLAST status (attempt {attempt + 1}/{max_attempts})...")
+                try:
+                    status, root = await check_blast_status(session, rid, blast_url)
+                    if status is not None and status.text == "READY":
+                        break
+                    if attempt == max_attempts - 1:
+                        raise HTTPException(status_code=500, detail="BLAST job timed out")
+                    await asyncio.sleep(poll_interval)
+                except Exception as e:
+                    logger.error(f"Error checking status: {str(e)}")
+                    raise HTTPException(status_code=500, detail=f"Error checking BLAST status: {str(e)}")
+            
+            return root
+
+    # Run the async polling
+    root = await poll_blast_results()
+    logger.info("BLAST job completed, parsing results...")
     
     # Parse results
     results = []

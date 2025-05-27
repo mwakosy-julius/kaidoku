@@ -1,5 +1,17 @@
 from typing import List, Tuple
 
+def format_sequence(sequence):
+    sequence = sequence.upper()
+    if sequence[0] == ">":
+        sequence = sequence.splitlines()[1:]
+        sequence = "".join(sequence).strip()
+    else:
+        sequence = "".join(sequence.splitlines()).strip()
+    return sequence
+
+
+def is_dna(seq):
+    return set(seq).issubset({"A", "C", "G", "T"})
 
 # Simple pairwise alignment (Needleman-Wunsch-like, pure Python)
 def align_sequences(ref: str, sample: str) -> Tuple[str, str]:
@@ -86,10 +98,3 @@ def call_variants(ref: str, sample: str) -> List[dict]:
             )
 
     return variants
-
-
-# Parse FASTA (single sequence per input for simplicity)
-def parse_fasta(fasta: str) -> str:
-    lines = fasta.strip().split("\n")
-    sequence = "".join(line for line in lines if not line.startswith(">"))
-    return sequence
