@@ -38,19 +38,14 @@ class Settings(BaseSettings):
     COOKIE_PATH: str = "/auth"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 
-    CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = [
-        "https://kaidoku-omega.vercel.app",
-    ]
+    CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = []
 
     @computed_field
     @property
     def all_cors_origins(self) -> list[str]:
-        return [str(origin).rstrip("/") for origin in self.CORS_ORIGINS] + [
-            self.FRONTEND_HOST
-        ]
+        return [str(origin).rstrip("/") for origin in self.CORS_ORIGINS]
 
     PROJECT_NAME: str = "Kaidoku API"
-    FRONTEND_HOST: str = "http://localhost:5173"
     SENTRY_DSN: HttpUrl | None = None  # security
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
