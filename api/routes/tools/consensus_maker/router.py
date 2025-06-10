@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from api.routes.tools.consensus_maker.functions import parse_fasta_sequences, generate_consensus
+from api.routes.tools.consensus_maker.functions import parse_fasta, generate_consensus
 
 router = APIRouter(
     prefix="/consensus_maker",
@@ -19,7 +19,7 @@ async def create_consensus(data: str):
         )
 
     try:
-        sequences = parse_fasta_sequences(data)
+        sequences = parse_fasta(data)
         consensus = generate_consensus(sequences)
         return {"consensus": consensus}
 

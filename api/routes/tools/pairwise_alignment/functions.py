@@ -11,7 +11,6 @@ def format_sequence(sequence):
         sequence = "".join(sequence.splitlines()).strip()
     return sequence
 
-
 def is_dna(seq):
     return set(seq).issubset({"A", "C", "G", "T"})
 
