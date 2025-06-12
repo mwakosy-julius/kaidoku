@@ -1,7 +1,6 @@
 from typing import Dict
 import random
 
-
 def format_sequence(sequence):
     sequence = sequence.upper()
     if sequence[0] == ">":
@@ -16,6 +15,94 @@ def validate_sequence(sequence: str) -> bool:
     """Validate that the sequence contains only standard amino acids."""
     valid_amino_acids = set("ACDEFGHIKLMNPQRSTVWY")
     return all(c.upper() in valid_amino_acids for c in sequence.strip())
+
+
+def calculate_protein_properties(sequence):
+    """
+    Calculate the molecular weight and isoelectric point (pI) of a protein from its amino acid sequence.
+    
+    Args:
+        sequence (str): Amino acid sequence (single-letter codes, case-insensitive).
+    
+    Returns:
+        tuple: (molecular_weight, isoelectric_point) in Daltons and pH units, respectively.
+               Returns (None, None) if the sequence is invalid.
+    """
+    # Molecular weights of amino acids (in Daltons, average isotopic mass)
+    aa_weights = {
+        'A': 71.08, 'R': 156.19, 'N': 114.11, 'D': 115.09, 'C': 103.14,
+        'E': 129.12, 'Q': 128.13, 'G': 57.05, 'H': 137.14, 'I': 113.16,
+        'L': 113.16, 'K': 128.17, 'M': 131.19, 'F': 147.18, 'P': 97.12,
+        'S': 87.08, 'T': 101.11, 'W': 186.21, 'Y': 163.18, 'V': 99.13
+    }
+    
+    # pKa values for ionizable groups
+    # Format: {'residue': (pKa if positive, pKa if negative, charge when protonated)}
+    pka_values = {
+        'N_term': (9.69, None, 1),  # N-terminus
+        'C_term': (None, 2.34, -1),  # C-terminus
+        'C': (None, 8.33, -1),      # Cysteine
+        'D': (None, 3.65, -1),      # Aspartic acid
+        'E': (None, 4.25, -1),      # Glutamic acid
+        'H': (6.00, None, 1),       # Histidine
+        'K': (10.53, None, 1),      # Lysine
+        'R': (12.48, None, 1),      # Arginine
+        'Y': (None, 10.07, -1)      # Tyrosine
+    }
+    
+    # Validate sequence
+    sequence = sequence.upper().strip()
+    if not sequence or not all(aa in aa_weights for aa in sequence):
+        return None, None
+    
+    # Calculate molecular weight
+    # Sum of amino acid weights minus water (18.02 Da) per peptide bond
+    molecular_weight = sum(aa_weights[aa] for aa in sequence)
+    molecular_weight -= 18.02 * (len(sequence) - 1)  # Water loss for n-1 peptide bonds
+    molecular_weight += 18.02  # Add water for N- and C-terminus (H2O)
+    
+    # Calculate isoelectric point
+    def net_charge(pH):
+        charge = 0.0
+        
+        # N-terminus contribution
+        if pka_values['N_term'][0]:
+            charge += pka_values['N_term'][2] / (1 + 10**(pH - pka_values['N_term'][0]))
+        
+        # C-terminus contribution
+        if pka_values['C_term'][1]:
+            charge += pka_values['C_term'][2] / (1 + 10**(pka_values['C_term'][1] - pH))
+        
+        # Side chain contributions
+        for aa in sequence:
+            if aa in pka_values:
+                pKa_pos, pKa_neg, base_charge = pka_values[aa]
+                if pKa_pos:  # Positive charge when protonated
+                    charge += base_charge / (1 + 10**(pH - pKa_pos))
+                elif pKa_neg:  # Negative charge when deprotonated
+                    charge += base_charge / (1 + 10**(pKa_neg - pH))
+        
+        return charge
+    
+    # Binary search to find pH where net charge is closest to zero
+    pH_min, pH_max = 0.0, 14.0
+    tolerance = 0.01
+    max_iterations = 100
+    
+    for _ in range(max_iterations):
+        pH_mid = (pH_min + pH_max) / 2
+        charge = net_charge(pH_mid)
+        
+        if abs(charge) < tolerance:
+            break
+        elif charge > 0:
+            pH_min = pH_mid
+        else:
+            pH_max = pH_mid
+    
+    isoelectric_point = round(pH_mid, 2)
+    
+    return round(molecular_weight, 2), isoelectric_point
 
 
 def predict_structure(sequence: str) -> Dict:
@@ -36,6 +123,8 @@ def predict_structure(sequence: str) -> Dict:
 
     # Mock PDB data (simplified for demo)
     # In production, call AlphaFold/ESMFold API or local model
+
+    
     mock_pdb = """
 HEADER    PLANT PROTEIN                           02-MAR-00   1EJG              
 TITLE     CRAMBIN AT ULTRA-HIGH RESOLUTION: VALENCE ELECTRON DENSITY.           
@@ -1574,8 +1663,12 @@ CONECT  749   60
 MASTER      266    0    0    2    2    0    0    6  340    1    6    4          
 END                                                                           
 """
+    molecular_weight, isometric_point = calculate_protein_properties(sequence)
+
     return {
         "sequence": sequence.upper(),
+        "molecular_weight": molecular_weight,
+        "isometric_point": isometric_point, # Mock molecular weight
         "pdb_data": mock_pdb,
         "confidence": round(random.uniform(0.7, 0.95), 2),  # Mock confidence score
     }
