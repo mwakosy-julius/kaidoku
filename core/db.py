@@ -9,7 +9,7 @@ user_collection = None
 try:
     client = AsyncIOMotorClient(settings.MONGODB_URL, serverSelectionTimeoutMS=5000)
     print(f"MongoDB connection successful {settings.MONGODB_URL}")
-    client.admin.command("ping")
+    # client.admin.command("ping")
     db = client.get_database("kaidoku")
     user_collection = db.get_collection("users")
     print("MongoDB connection successful")

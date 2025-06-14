@@ -25,14 +25,25 @@ async def create_user(user: UserCreate) -> User:
     result = await user_collection.insert_one(user_data)
 
     created_user = await user_collection.find_one({"_id": result.inserted_id})
-    return UserInfo(**created_user)
+    if created_user:
+        return User(
+            **{
+                k: v
+                for k, v in created_user.items()
+                if k != "_id" or isinstance(k, str)
+            }
+        )
+    raise ValueError("Failed to create user")
+    # return UserInfo(**created_user)
 
 
 async def get_user_by_username(username: str) -> Optional[User]:
     """Get a user by username"""
     user_data = await user_collection.find_one({"username": username})
     if user_data:
-        return UserInfo(**user_data)
+        return User(
+            **{k: v for k, v in user_data.items() if k != "_id" or isinstance(k, str)}
+        )
     return None
 
 
