@@ -1,11 +1,9 @@
 from datetime import timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel
-from google.oauth2 import id_token
-from google.auth.transport import requests as grequests
 from sqlalchemy.orm import Session
+import requests
 
 from app.core.security import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
@@ -19,12 +17,6 @@ from app.db.models import User
 from app.models.user import Token, UserCreate, User as UserSchema
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
-
-GOOGLE_CLIENT_ID = "133426663689-2i05ddo0v7kcqikp29cgka2h1ob25cc8.apps.googleusercontent.com"
-
-
-class GoogleCredential(BaseModel):
-    credential: str
 
 
 @router.post("/signup", response_model=UserSchema)
@@ -90,38 +82,30 @@ def get_tools(current_user=Depends(get_current_active_user)):
     return {"tools": tools}
 
 
-@router.post("/auth/google")
-async def google_login(data: GoogleCredential):
-    try:
-        # Verify Google ID token
-        idinfo = id_token.verify_oauth2_token(
-            data.credential,
-            grequests.Request(),
-            GOOGLE_CLIENT_ID,
-        )
-        email = idinfo["email"]
-        name = idinfo.get("name")
-        picture = idinfo.get("picture")
+@router.post("/google", response_model=Token)
+async def google_login(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
+    token = data.get("token")
+    if not token:
+        raise HTTPException(status_code=400, detail="Token is required")
+    # 1. Verify token with Google
+    google_response = requests.get(
+        f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
+    )
+    if google_response.status_code != 200:
+        raise HTTPException(status_code=400, detail="Invalid Google token")
+    google_data = google_response.json()
+    email = google_data["email"]
+    username = google_data.get("name", email.split("@")[0])
 
-        # Find or create user
-        user = await User.find_one({"email": email})
-        if not user:
-            user = await User.create(
-                {
-                    "email": email,
-                    "name": name,
-                    "avatar": picture,
-                    "login_type": "google",
-                }
-            )
+    # 2. Find or create user
+    user = db.query(User).filter(User.email == email).first()
+    if not user:
+        user = User(username=username, email=email, hashed_password="", is_active=True)
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
-        # Generate your own JWT
-        token = create_access_token(user.id)
-
-        return {
-            "token": token,
-            "user": {"email": user.email, "name": user.name, "avatar": user.avatar},
-        }
-    except Exception as e:
-        print("Google login error:", e)
-        raise HTTPException(status_code=401, detail="Google login failed")
+    # 3. Issue your app's JWT
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
