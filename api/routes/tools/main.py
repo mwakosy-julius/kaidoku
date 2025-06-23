@@ -17,6 +17,7 @@ from api.routes.tools.phylogenetic_trees import endpoint as phylogenetic_trees_r
 from api.routes.tools.variant_calling import endpoint as variant_calling_router
 from api.routes.tools.protein_structure import endpoint as protein_structure_router
 from api.routes.tools.sequence_mutator import endpoint as sequence_mutator_router
+from api.routes.tools.primer_design import endpoint as primer_design_router
 
 router = APIRouter(
     prefix="/tools",
@@ -38,4 +39,5 @@ router.include_router(phylogenetic_trees_router.router)
 router.include_router(variant_calling_router.router)
 router.include_router(sequence_search_router.router)
 router.include_router(protein_structure_router.router)
+router.include_router(primer_design_router.router)
 router.include_router(sequence_mutator_router.router)

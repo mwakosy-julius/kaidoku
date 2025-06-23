@@ -20,6 +20,7 @@ def dna_visualization(request: Sequence):
             transcript = functions.transcription(sequence)
             amino_acids = functions.translation(sequence)
             gc_content = functions.gc_content(sequence)
+            reverse_complement = functions.reverse_complement(sequence)
             dna_counts, dna_percentages = functions.nucleotide_counts(sequence)
             amino_acid_counts, amino_acid_percentages = functions.amino_acid_counts(
                 sequence
@@ -29,6 +30,7 @@ def dna_visualization(request: Sequence):
                 "transcript": transcript,
                 "amino_acids": amino_acids,
                 "gc_content": gc_content,
+                "reverse_complement": reverse_complement,
                 "dna_counts": dna_counts,
                 "dna_percentages": dna_percentages,
                 "amino_acid_counts": amino_acid_counts,

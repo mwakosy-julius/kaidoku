@@ -28,6 +28,9 @@ def transcription(sequence):
         transcript += nucleotide
     return transcript
 
+def reverse_complement(sequence):
+    complement = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+    return ''.join(complement[base] for base in reversed(sequence))
 
 def translation(sequence):
     sequence2 = ""

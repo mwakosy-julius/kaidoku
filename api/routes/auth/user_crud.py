@@ -1,4 +1,4 @@
-from models.user import User, UserCreate, UserInfo
+from models.user import User, UserCreate
 from datetime import datetime
 from typing import Optional
 from core.config import settings
@@ -51,7 +51,7 @@ async def get_user_by_email(email: str) -> Optional[User]:
     """Get a user by email"""
     user_data = await user_collection.find_one({"email": email})
     if user_data:
-        return UserInfo(**user_data)
+        return User(**user_data)
     return None
 
 
@@ -59,7 +59,7 @@ async def get_user_by_id(user_id: str) -> Optional[User]:
     """Get a user by ID"""
     user_data = await user_collection.find_one({"_id": PyObjectId(user_id)})
     if user_data:
-        return UserInfo(**user_data)
+        return User(**user_data)
     return None
 
 
