@@ -3,13 +3,13 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-from app.db.database import create_db_and_tables
-from app.routes.auth import router as auth_router
-from app.tools.main import router as tools_router
-from app.routes.dashboard import router as dashboard_router
-from app.routes.blogs import router as blogs_router
-from app.routes.docs import router as docs_router
-from app.routes.testimonials import router as testimonials_router
+# from core.db import create_db_and_tables
+from auth import router as auth_router
+from main import router as tools_router
+from dashboard import router as dashboard_router
+from blogs import router as blogs_router
+from docs import router as docs_router
+from testimonials import router as testimonials_router
 
 load_dotenv()
 

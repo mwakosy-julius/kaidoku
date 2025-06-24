@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Dict, Any
-from app.core.security import get_current_user
+from .core.security import get_current_user
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
 
