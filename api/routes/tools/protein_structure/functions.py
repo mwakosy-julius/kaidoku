@@ -44,6 +44,7 @@ def is_hydrophilic_or_hydrophobic(sequence: str, threshold: float = 0.0) -> str:
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     # Validate sequence
     sequence = sequence.upper()
     if not sequence or not all(aa in hydrophobicity_scale for aa in sequence):
@@ -141,6 +142,8 @@ def calculate_protein_properties(sequence):
 >>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 =======
 >>>>>>> parent of acfbff9 (added mw, pI on protein structure)
+=======
+>>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 def predict_structure(sequence: str) -> Dict:
     """
     Simulate protein structure prediction.
@@ -162,8 +165,11 @@ def predict_structure(sequence: str) -> Dict:
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 =======
 >>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 =======
@@ -1711,6 +1717,7 @@ END
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     molecular_weight, isometric_point = calculate_protein_properties(sequence)
     hydrophobic_state = is_hydrophilic_or_hydrophobic(sequence)
 
@@ -1719,6 +1726,10 @@ END
         "molecular_weight": molecular_weight,
         "isometric_point": isometric_point, # Mock molecular weight
         "hydrophobic_state": hydrophobic_state,
+=======
+    return {
+        "sequence": sequence.upper(),
+>>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 =======
     return {
         "sequence": sequence.upper(),
