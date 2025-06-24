@@ -42,6 +42,7 @@ def is_hydrophilic_or_hydrophobic(sequence: str, threshold: float = 0.0) -> str:
         'Y': -1.3  # Tyrosine
     }
 
+<<<<<<< HEAD
     # Validate sequence
     sequence = sequence.upper()
     if not sequence or not all(aa in hydrophobicity_scale for aa in sequence):
@@ -135,6 +136,8 @@ def calculate_protein_properties(sequence):
 
 =======
 >>>>>>> parent of acfbff9 (added mw, pI on protein structure)
+=======
+>>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 def predict_structure(sequence: str) -> Dict:
     """
     Simulate protein structure prediction.
@@ -154,8 +157,11 @@ def predict_structure(sequence: str) -> Dict:
     # Mock PDB data (simplified for demo)
     # In production, call AlphaFold/ESMFold API or local model
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 =======
 >>>>>>> parent of acfbff9 (added mw, pI on protein structure)
     mock_pdb = """
@@ -1697,6 +1703,7 @@ MASTER      266    0    0    2    2    0    0    6  340    1    6    4
 END
 """
 <<<<<<< HEAD
+<<<<<<< HEAD
     molecular_weight, isometric_point = calculate_protein_properties(sequence)
     hydrophobic_state = is_hydrophilic_or_hydrophobic(sequence)
 
@@ -1705,6 +1712,10 @@ END
         "molecular_weight": molecular_weight,
         "isometric_point": isometric_point, # Mock molecular weight
         "hydrophobic_state": hydrophobic_state,
+=======
+    return {
+        "sequence": sequence.upper(),
+>>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 =======
     return {
         "sequence": sequence.upper(),
