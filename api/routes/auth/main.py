@@ -1,31 +1,32 @@
-from core.db import db
-from datetime import timedelta, datetime
-from core.config import settings
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Cookie
-from models.user import UserLogin, User, Token, UserCreate, UserResponse
-from jose import jwt
-from typing import Optional, Dict, Any
+from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
 
+from fastapi import APIRouter, Cookie, Depends, HTTPException, Response, status
+from jose import jwt
+
+from api.routes.auth.user_crud import (
+    create_user,
+    get_user_by_email,
+    get_user_by_username,
+)
+from core.config import settings
+from core.db import db
 from core.security import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_DAYS,
-    get_current_active_user,
-    create_access_token,
-    verify_password,
-    get_user_from_refresh_token,
-    create_refresh_token,
-    store_refresh_token,
-    invalidate_refresh_token,
-    rotate_refresh_token,
-    revoke_all_user_tokens,
     cleanup_expired_tokens,
+    create_access_token,
+    create_refresh_token,
+    get_current_active_user,
     get_password_hash,
+    get_user_from_refresh_token,
+    invalidate_refresh_token,
+    revoke_all_user_tokens,
+    rotate_refresh_token,
+    store_refresh_token,
+    verify_password,
 )
-from api.routes.auth.user_crud import (
-    get_user_by_username,
-    get_user_by_email,
-    create_user,
-)
+from models.user import Token, User, UserCreate, UserLogin, UserResponse
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -46,7 +47,7 @@ async def authenticate_user(email: str, password: str) -> Optional[UserResponse]
             username=user_in_db.username,
             email=user_in_db.email,
             is_active=user_in_db.is_active,
-            created_at=user_in_db.created_at
+            created_at=user_in_db.created_at,
         )
     except Exception as e:
         print(f"Authentication error: {e}")
@@ -69,8 +70,7 @@ async def signup(user_data: UserCreate):
         existing_email = await get_user_by_email(user_data.email)
         if existing_email:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Email already registered"
+                status_code=status.HTTP_409_CONFLICT, detail="Email already registered"
             )
 
         # Hash password before storing
@@ -87,7 +87,7 @@ async def signup(user_data: UserCreate):
             email=db_user.email,
             password=db.password,
             is_active=db_user.is_active,
-            created_at=db_user.created_at
+            created_at=db_user.created_at,
         )
 
     except HTTPException:
@@ -96,7 +96,7 @@ async def signup(user_data: UserCreate):
         print(f"Signup error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to create user"
+            detail="Failed to create user",
         )
 
 
@@ -116,8 +116,7 @@ async def login_for_access_token(response: Response, form_data: UserLogin):
         # Check if user is active
         if not user.is_active:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Account is disabled"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled"
             )
 
         # Create access token
@@ -158,8 +157,7 @@ async def login_for_access_token(response: Response, form_data: UserLogin):
     except Exception as e:
         print(f"Login error: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Login failed"
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Login failed"
         )
 
 
@@ -167,7 +165,7 @@ async def login_for_access_token(response: Response, form_data: UserLogin):
 async def refresh_access_token(
     response: Response,
     refresh_token: str = Cookie(None),
-    rotate_token: bool = False  # Optional token rotation
+    rotate_token: bool = False,  # Optional token rotation
 ):
     """Generate a new access token using a refresh token"""
     try:
@@ -190,8 +188,7 @@ async def refresh_access_token(
         # Check if user is still active
         if not user.is_active:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Account is disabled"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Account is disabled"
             )
 
         # Create new access token
@@ -222,7 +219,7 @@ async def refresh_access_token(
         print(f"Token refresh error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Token refresh failed"
+            detail="Token refresh failed",
         )
 
 
@@ -239,10 +236,7 @@ async def logout(
             await invalidate_refresh_token(refresh_token)
 
         # Clear the refresh token cookie
-        response.delete_cookie(
-            key="refresh_token",
-            path="/auth"
-        )
+        response.delete_cookie(key="refresh_token", path="/auth")
 
         return {"message": "Successfully logged out"}
 
@@ -265,10 +259,7 @@ async def logout_all_devices(
         await revoke_all_user_tokens(str(current_user.id))
 
         # Clear the current refresh token cookie
-        response.delete_cookie(
-            key="refresh_token",
-            path="/auth"
-        )
+        response.delete_cookie(key="refresh_token", path="/auth")
 
         return {"message": "Successfully logged out from all devices"}
 
@@ -295,7 +286,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Compare two sequences to find similarities and differences",
             "url": "/api/tools/pairwise_alignment",
             "frontend_url": "/pairwise_alignment",
-            "category": "alignment"
+            "category": "alignment",
         },
         {
             "id": "multiple_alignment",
@@ -303,7 +294,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Align three or more biological sequences for comparative analysis",
             "url": "/api/tools/multiple_alignment",
             "frontend_url": "/multiple_alignment",
-            "category": "alignment"
+            "category": "alignment",
         },
         {
             "id": "gc_content",
@@ -311,7 +302,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Calculate the percentage of G and C bases in DNA sequences",
             "url": "/api/tools/gc_content",
             "frontend_url": "/gc_content",
-            "category": "analysis"
+            "category": "analysis",
         },
         {
             "id": "codon_usage",
@@ -319,7 +310,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Analyze codon frequency and bias in coding sequences",
             "url": "/api/tools/codon_usage",
             "frontend_url": "/codon_usage",
-            "category": "analysis"
+            "category": "analysis",
         },
         {
             "id": "dna_visualization",
@@ -327,7 +318,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Generate visual representations of DNA sequences",
             "url": "/api/tools/dna_visualization",
             "frontend_url": "/dna_visualization",
-            "category": "visualization"
+            "category": "visualization",
         },
         {
             "id": "sequence_search",
@@ -335,7 +326,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Search for specific DNA and Protein sequences in a database",
             "url": "/api/tools/sequence_search",
             "frontend_url": "/sequence_search",
-            "category": "search"
+            "category": "search",
         },
         {
             "id": "blast",
@@ -343,7 +334,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Find regions of similarity between biological sequences",
             "url": "/api/tools/blast",
             "frontend_url": "/blast",
-            "category": "search"
+            "category": "search",
         },
         {
             "id": "phylogenetic_tree",
@@ -351,7 +342,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Generate evolutionary trees from sequence data",
             "url": "/api/tools/phylogenetic_tree",
             "frontend_url": "/phylogenetic_tree",
-            "category": "analysis"
+            "category": "analysis",
         },
         {
             "id": "primer_design",
@@ -359,7 +350,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Design PCR Primers for amplification",
             "url": "/api/tools/primer_design",
             "frontend_url": "/primer_design",
-            "category": "design"
+            "category": "design",
         },
         {
             "id": "variant_calling",
@@ -367,7 +358,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Identify variants in sequencing data compared to a reference",
             "url": "/api/tools/variant_calling",
             "frontend_url": "/variant_calling",
-            "category": "analysis"
+            "category": "analysis",
         },
         {
             "id": "motif_finder",
@@ -375,7 +366,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Discover recurring patterns in biological sequences",
             "url": "/api/tools/motif_finder",
             "frontend_url": "/motif_finder",
-            "category": "analysis"
+            "category": "analysis",
         },
         {
             "id": "consensus_maker",
@@ -383,7 +374,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Generate consensus sequences from multiple alignments",
             "url": "/api/tools/consensus_maker",
             "frontend_url": "/consensus_maker",
-            "category": "analysis"
+            "category": "analysis",
         },
         {
             "id": "data_compression",
@@ -391,7 +382,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Compress genomic data for efficient storage and transfer",
             "url": "/api/tools/data_compression",
             "frontend_url": "/data_compression",
-            "category": "utility"
+            "category": "utility",
         },
         {
             "id": "metagenomics",
@@ -399,7 +390,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Analyze genetic material from environmental samples",
             "url": "/api/tools/metagenomics",
             "frontend_url": "/metagenomics",
-            "category": "analysis"
+            "category": "analysis",
         },
         {
             "id": "protein_structure",
@@ -407,7 +398,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Predict the structure of proteins from amino acid sequences",
             "url": "/api/tools/protein_structure",
             "frontend_url": "/protein_structure",
-            "category": "prediction"
+            "category": "prediction",
         },
         {
             "id": "sequence_mutator",
@@ -415,7 +406,7 @@ async def get_tools(current_user: User = Depends(get_current_active_user)):
             "description": "Introduce mutations to sequences to analyze effects",
             "url": "/api/tools/sequence_mutator",
             "frontend_url": "/sequence_mutator",
-            "category": "simulation"
+            "category": "simulation",
         },
     ]
     return {"tools": tools, "total": len(tools)}
@@ -428,7 +419,7 @@ async def verify_token(current_user: User = Depends(get_current_active_user)):
         "valid": True,
         "user_id": current_user.id,
         "email": current_user.email,
-        "is_active": current_user.is_active
+        "is_active": current_user.is_active,
     }
 
 
@@ -438,12 +429,40 @@ async def cleanup_tokens(current_user: User = Depends(get_current_active_user)):
     # You might want to add admin role checking here
     try:
         deleted_count = await cleanup_expired_tokens()
-        return {
-            "message": f"Successfully cleaned up {deleted_count} expired tokens"
-        }
+        return {"message": f"Successfully cleaned up {deleted_count} expired tokens"}
     except Exception as e:
         print(f"Token cleanup error: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Token cleanup failed"
+            detail="Token cleanup failed",
         )
+
+
+# New Features
+# @router.post("/google", response_model=Token)
+# async def google_login(request: Request, db: Session = Depends(get_db)):
+#     data = await request.json()
+#     token = data.get("token")
+#     if not token:
+#         raise HTTPException(status_code=400, detail="Token is required")
+#     # 1. Verify token with Google
+#     google_response = requests.get(
+#         f"https://oauth2.googleapis.com/tokeninfo?id_token={token}"
+#     )
+#     if google_response.status_code != 200:
+#         raise HTTPException(status_code=400, detail="Invalid Google token")
+#     google_data = google_response.json()
+#     email = google_data["email"]
+#     username = google_data.get("name", email.split("@")[0])
+
+#     # 2. Find or create user
+#     user = db.query(User).filter(User.email == email).first()
+#     if not user:
+#         user = User(username=username, email=email, hashed_password="", is_active=True)
+#         db.add(user)
+#         db.commit()
+#         db.refresh(user)
+
+#     # 3. Issue your app's JWT
+#     access_token = create_access_token(data={"sub": user.username})
+#     return {"access_token": access_token, "token_type": "bearer"}
