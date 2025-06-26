@@ -1,11 +1,11 @@
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
+# from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
 # from core.db import create_db_and_tables
-from auth import router as auth_router
-from main import router as tools_router
+# from auth import router as auth_router
+# from main import router as tools_router
 from dashboard import router as dashboard_router
 from blogs import router as blogs_router
 from docs import router as docs_router
@@ -14,12 +14,12 @@ from testimonials import router as testimonials_router
 load_dotenv()
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # Startup: create database and tables
-    create_db_and_tables()
-    yield
-    # Shutdown: cleanup would go here
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     # Startup: create database and tables
+#     create_db_and_tables()
+#     yield
+#     # Shutdown: cleanup would go here
 
 
 app = FastAPI(
@@ -38,7 +38,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
 app.include_router(tools_router)
 app.include_router(dashboard_router)
 app.include_router(blogs_router)
