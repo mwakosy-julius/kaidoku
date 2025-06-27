@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 # from core.db import create_db_and_tables
 # from auth import router as auth_router
 from main import router as tools_router
-from dashboard import router as dashboard_router
-from blogs import router as blogs_router
-from docs import router as docs_router
-from testimonials import router as testimonials_router
+from api.routes.dashboard import router as dashboard_router
+from api.routes.blogs import router as blogs_router
+from api.routes.docs import router as docs_router
+from api.routes.testimonials import router as testimonials_router
 
 load_dotenv()
 
