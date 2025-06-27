@@ -5,14 +5,13 @@ from dotenv import load_dotenv
 
 # from core.db import create_db_and_tables
 # from auth import router as auth_router
-# from main import router as tools_router
+from main import router as tools_router
 from dashboard import router as dashboard_router
 from blogs import router as blogs_router
 from docs import router as docs_router
 from testimonials import router as testimonials_router
 
 load_dotenv()
-
 
 # @asynccontextmanager
 # async def lifespan(app: FastAPI):
@@ -26,7 +25,6 @@ app = FastAPI(
     title="Kaidoku DNA API",
     description="API for DNA analysis tools including assembly and compression",
     version="1.0.0",
-    lifespan=lifespan,
 )
 
 origins = ["http://localhost:5173"]
