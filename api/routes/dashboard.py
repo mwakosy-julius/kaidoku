@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Dict, Any
-from .core.security import get_current_user
+# from .core.security import get_current_user
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
+
+def get_current_user():
+    return "dummy_user"  # Placeholder for user authentication
+
+
+currentr_user = lambda: "dummy_user"  # Placeholder for user authentication
 
 # Dummy data
 DUMMY_COLLECTIONS = [
@@ -36,7 +42,7 @@ def get_library_collection(id: int, current_user=Depends(get_current_user)):
 
 # 2. Recent Activity
 @router.get("/activity")
-def get_recent_activity(current_user=Depends(get_current_user)):
+def get_recent_activity(current_user=Depends(currentr_user)):
     return DUMMY_ACTIVITY
 
 # 3. Projects
