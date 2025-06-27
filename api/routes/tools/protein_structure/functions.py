@@ -42,9 +42,6 @@ def is_hydrophilic_or_hydrophobic(sequence: str, threshold: float = 0.0) -> str:
         'Y': -1.3  # Tyrosine
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     # Validate sequence
     sequence = sequence.upper()
     if not sequence or not all(aa in hydrophobicity_scale for aa in sequence):
@@ -57,7 +54,6 @@ def is_hydrophilic_or_hydrophobic(sequence: str, threshold: float = 0.0) -> str:
     # Determine hydrophobicity
     return "Hydrophobic" if average_score > threshold else "Hydrophilic"
 
-<<<<<<< HEAD
 def calculate_protein_properties(sequence):
     # Molecular weights of amino acids (in Daltons, average isotopic mass)
     aa_weights = {
@@ -135,15 +131,6 @@ def calculate_protein_properties(sequence):
 
     return round(molecular_weight, 2), isoelectric_point
 
-
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
 def predict_structure(sequence: str) -> Dict:
     """
     Simulate protein structure prediction.
@@ -162,20 +149,7 @@ def predict_structure(sequence: str) -> Dict:
 
     # Mock PDB data (simplified for demo)
     # In production, call AlphaFold/ESMFold API or local model
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
     mock_pdb = """
 HEADER    PLANT PROTEIN                           02-MAR-00   1EJG
 TITLE     CRAMBIN AT ULTRA-HIGH RESOLUTION: VALENCE ELECTRON DENSITY.
@@ -1714,34 +1688,13 @@ CONECT  749   60
 MASTER      266    0    0    2    2    0    0    6  340    1    6    4
 END
 """
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     molecular_weight, isometric_point = calculate_protein_properties(sequence)
     hydrophobic_state = is_hydrophilic_or_hydrophobic(sequence)
 
     return {
         "sequence": sequence.upper(),
+        "confidence": round(random.uniform(0.7, 0.95), 2),  # Mock confidence score
         "molecular_weight": molecular_weight,
         "isometric_point": isometric_point, # Mock molecular weight
         "hydrophobic_state": hydrophobic_state,
-=======
-    return {
-        "sequence": sequence.upper(),
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
-    return {
-        "sequence": sequence.upper(),
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
-    return {
-        "sequence": sequence.upper(),
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-=======
-    return {
-        "sequence": sequence.upper(),
->>>>>>> parent of acfbff9 (added mw, pI on protein structure)
-        "pdb_data": mock_pdb,
-        "confidence": round(random.uniform(0.7, 0.95), 2),  # Mock confidence score
     }
