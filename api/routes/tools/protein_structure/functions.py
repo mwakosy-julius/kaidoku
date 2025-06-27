@@ -1720,4 +1720,5 @@ END
         "molecular_weight": molecular_weight,
         "isometric_point": isometric_point,  # Mock molecular weight
         "hydrophobic_state": hydrophobic_state,
+        "pdb_data": mock_pdb,
     }
